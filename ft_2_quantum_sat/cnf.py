@@ -1,4 +1,4 @@
-
+from pysat.solvers import Glucose3
 
 class CNF:
     """
@@ -8,6 +8,7 @@ class CNF:
     num_vars = 5, then the variables are [1,2,3,4,5].
     """
 
+    # TODO: rename this class to avoid clash with stuff in pysat
     # TODO: map from var number to some label (string)
 
     def __init__(self):
@@ -82,3 +83,12 @@ class CNF:
         self.add_clause([a, b])
         self.add_clause([-a, -b])
         return b
+    
+    def _solve_glucose_3(self):
+        g = Glucose3()
+        for clause in self.clauses:
+            g.add_clause(list(clause))
+        return (g.solve(), g.get_model())
+    
+    def solve(self, method=None):
+        return self._solve_glucose_3()
