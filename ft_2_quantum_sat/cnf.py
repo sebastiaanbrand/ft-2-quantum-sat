@@ -1,5 +1,5 @@
 from pysat.solvers import Glucose3
-from pysat.formula import CNF
+from pysat.card import CardEnc
 
 class CNF:
     """
@@ -20,6 +20,9 @@ class CNF:
         fields = {}
         fields['clauses'] = self.clauses.__str__()
         return fields.__str__()
+    
+    def get_vars(self):
+        return list(range(1, self.num_vars + 1))
 
     def get_new_var(self):
         self.num_vars += 1
@@ -90,6 +93,12 @@ class CNF:
         self.add_clause([-a, -b])
         return b
     
+    def add_cardinality_constraint(self, at_most):
+        variables = self.get_vars()
+        card_constraint = CardEnc.atmost(variables, bound=at_most)
+        for clause in card_constraint.clauses:
+            self.add_clause(clause)
+    
     def _solve_glucose_3(self):
         g = Glucose3()
         for clause in self.clauses:
@@ -98,45 +107,3 @@ class CNF:
     
     def solve(self, method=None):
         return self._solve_glucose_3()
-
-class LinkingTree:
-    """
-    Tree used to construct the "totalizer" from [1]
-
-        [1] Bailleux, O. and Boufkhad, Y. *Efficient CNF encodings of Boolean 
-        cardinality constraints*. International conference on principles and 
-        practice of constraint programming. Springer, Berlin, Heidelberg, 2003.
-    """
-
-    def __init__(self, variables):
-        # TODO: construct tree from given variables
-        pass
-
-
-    class LinkingTreeNode:
-        """
-        Single node in the tree.
-        """
-
-        def __init__(self, variables, child_a=None, child_b=None):
-            self.variables = variables
-            self.child_a = child_a
-            self.child_b = child_b
-        
-        
-        def get_clauses(self):
-            """
-            Implements Eq. (1) from [1].
-            """
-            m1 = len(self.child_a.variables)
-            m2 = len(self.child_b.variables)
-            m  = len(self.variables)
-            assert m == m1 + m2
-
-            for alpha in range(0, m1 + 1):
-                for beta in range(0, m2 + 1):
-                    sigma = alpha + beta # sigma <= m
-
-                    # TODO
-
-

@@ -53,9 +53,43 @@ def test_solve():
     assert sat == False
 
 
-def test_linking_tree():
+def test_cardinality_constraint():
     """
-    Testing tree used to build cardinality constraint.
+    Cardinality constraint test
     """
-    tree = cnf.LinkingTree([1,2,3,4,5])
-    # TODO
+
+    # F = (x1) ^ (~x1 v x2) ^ (~x1 ^ x2 ^ ~x3)
+    # no constraint (should be satisfiable)
+    f = cnf.CNF()
+    f.add_clause([1])
+    f.add_clause([-1, 2])
+    f.add_clause([-1, 2, -3])
+    sat, _ = f.solve()
+    assert sat == True
+
+    # constraint of 3 (should be satisfiable)
+    f = cnf.CNF()
+    f.add_clause([1])
+    f.add_clause([-1, 2])
+    f.add_clause([-1, 2, -3])
+    f.add_cardinality_constraint(3)
+    sat, _ = f.solve()
+    assert sat == True
+
+    # constraint of 2 (should be satisfiable)
+    f = cnf.CNF()
+    f.add_clause([1])
+    f.add_clause([-1, 2])
+    f.add_clause([-1, 2, -3])
+    f.add_cardinality_constraint(2)
+    sat, _ = f.solve()
+    assert sat == True
+
+    # constraint of 1 (should not be satisfiable)
+    f = cnf.CNF()
+    f.add_clause([1])
+    f.add_clause([-1, 2])
+    f.add_clause([-1, 2, -3])
+    f.add_cardinality_constraint(1)
+    sat, _ = f.solve()
+    assert sat == False
