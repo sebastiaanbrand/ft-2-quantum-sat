@@ -1,4 +1,5 @@
 from pysat.solvers import Glucose3
+from pysat.formula import CNF
 
 class CNF:
     """
@@ -23,6 +24,11 @@ class CNF:
     def get_new_var(self):
         self.num_vars += 1
         return self.num_vars
+    
+    def get_new_vars(self, n):
+        new_vars = list(range(self.num_vars + 1, self.num_vars + n + 1))
+        self.num_vars += (n + 1)
+        return new_vars
 
     def add_var(self, var):
         if (abs(var) > self.num_vars + 1):
@@ -92,3 +98,45 @@ class CNF:
     
     def solve(self, method=None):
         return self._solve_glucose_3()
+
+class LinkingTree:
+    """
+    Tree used to construct the "totalizer" from [1]
+
+        [1] Bailleux, O. and Boufkhad, Y. *Efficient CNF encodings of Boolean 
+        cardinality constraints*. International conference on principles and 
+        practice of constraint programming. Springer, Berlin, Heidelberg, 2003.
+    """
+
+    def __init__(self, variables):
+        # TODO: construct tree from given variables
+        pass
+
+
+    class LinkingTreeNode:
+        """
+        Single node in the tree.
+        """
+
+        def __init__(self, variables, child_a=None, child_b=None):
+            self.variables = variables
+            self.child_a = child_a
+            self.child_b = child_b
+        
+        
+        def get_clauses(self):
+            """
+            Implements Eq. (1) from [1].
+            """
+            m1 = len(self.child_a.variables)
+            m2 = len(self.child_b.variables)
+            m  = len(self.variables)
+            assert m == m1 + m2
+
+            for alpha in range(0, m1 + 1):
+                for beta in range(0, m2 + 1):
+                    sigma = alpha + beta # sigma <= m
+
+                    # TODO
+
+
