@@ -74,7 +74,9 @@ class FaultTree:
             f.add_tseitin_multi(gate_type, gate_input_vars, output_var)
 
         # 3. add clause containing only the top event as (positive) literal
-        f.add_clause([all_vars[self.top_event]]) 
+        f.add_clause([all_vars[self.top_event]])
+
+        return f, all_vars, input_vars
 
 
     def save_as_image(self, output_file):

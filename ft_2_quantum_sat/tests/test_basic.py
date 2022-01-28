@@ -1,5 +1,5 @@
 
-from ft_2_quantum_sat import cnf
+from ft_2_quantum_sat import cnf, fault_tree
 
 
 def test_new_vars():
@@ -68,28 +68,109 @@ def test_cardinality_constraint():
     assert sat == True
 
     # constraint of 3 (should be satisfiable)
-    f = cnf.CNF()
-    f.add_clause([1])
-    f.add_clause([-1, 2])
-    f.add_clause([-1, 2, -3])
-    f.add_cardinality_constraint(3)
-    sat, _ = f.solve()
+    f3 = f.copy()
+    f3.add_cardinality_constraint(3)
+    sat, _ = f3.solve()
     assert sat == True
 
     # constraint of 2 (should be satisfiable)
-    f = cnf.CNF()
-    f.add_clause([1])
-    f.add_clause([-1, 2])
-    f.add_clause([-1, 2, -3])
-    f.add_cardinality_constraint(2)
-    sat, _ = f.solve()
+    f2 = f.copy()
+    f2.add_cardinality_constraint(2)
+    sat, _ = f2.solve()
     assert sat == True
 
     # constraint of 1 (should not be satisfiable)
-    f = cnf.CNF()
-    f.add_clause([1])
-    f.add_clause([-1, 2])
-    f.add_clause([-1, 2, -3])
-    f.add_cardinality_constraint(1)
-    sat, _ = f.solve()
+    f1 = f.copy()
+    f1.add_cardinality_constraint(1)
+    sat, _ = f1.solve()
+    assert sat == False
+
+
+def test_ft_example_1():
+    """
+    Test translation of fault tree to CNF formula on example
+    """
+
+    # build simple fault tree
+    car_ft = fault_tree.FaultTree()
+    car_ft.set_top_event('car breaks')
+    car_ft.add_basic_event('engine breaks', 0.05)
+    car_ft.add_basic_event('wheel breaks', 0.1)
+    car_ft.add_basic_event('no spare', 0.3)
+    car_ft.add_gate('car breaks', 'or', ['engine breaks', 'wheel issue'])
+    car_ft.add_gate('wheel issue', 'and', ['wheel breaks', 'no spare'])
+
+    # convert to CNF
+    car_cnf, var_mapping, input_vars = car_ft.to_cnf()
+
+    # solve without cardinality constraint 
+    sat, assignment = car_cnf.solve()
+    assert sat == True
+    assert var_mapping['car breaks'] in assignment
+
+    # cardinality constraint of 3 *over input vars only*
+    car_cnf3 = car_cnf.copy()
+    car_cnf3.add_cardinality_constraint(3, variables=input_vars.values())
+    sat, assignment = car_cnf3.solve()
+    assert sat == True
+    assert var_mapping['car breaks'] in assignment
+
+    # cardinality constraint of 2 *over input vars only*
+    car_cnf2 = car_cnf.copy()
+    car_cnf2.add_cardinality_constraint(2, variables=input_vars.values())
+    sat, assignment = car_cnf2.solve()
+    print(sat, assignment)
+    assert sat == True
+    assert var_mapping['car breaks'] in assignment
+
+    # cardinality constraint of 1 *over input vars only*
+    car_cnf1 = car_cnf.copy()
+    car_cnf1.add_cardinality_constraint(1, variables=input_vars.values())
+    sat, assignment = car_cnf1.solve()
+    print(sat, assignment)
+    assert sat == True
+    assert var_mapping['car breaks'] in assignment
+    
+def test_ft_example_2():
+    """
+    Test translation of fault tree to CNF formula on example
+    """
+
+    # build simple fault tree
+    pc_ft = fault_tree.FaultTree()
+    pc_ft.set_top_event('pc fails')
+    pc_ft.add_basic_event('high cpu load', 0.5)
+    pc_ft.add_basic_event('fan breaks', 0.1)
+    pc_ft.add_basic_event('power out', 0.1)
+    pc_ft.add_basic_event('battery fail', 0.2)
+    pc_ft.add_gate('too hot', 'and', ['high cpu load', 'fan breaks'])
+    pc_ft.add_gate('no power', 'and', ['power out', 'battery fail'])
+    pc_ft.add_gate('pc fails', 'or', ['too hot', 'no power'])
+
+    # convert to CNF
+    pc_cnf, var_mapping, input_vars = pc_ft.to_cnf()
+
+    # solve without cardinality constraint 
+    sat, assignment = pc_cnf.solve()
+    assert sat == True
+    assert var_mapping['pc fails'] in assignment
+
+    # cardinality constraint of 3 *over input vars only*
+    pc_cnf3 = pc_cnf.copy()
+    pc_cnf3.add_cardinality_constraint(3, variables=input_vars.values())
+    sat, assignment = pc_cnf3.solve()
+    assert sat == True
+    assert var_mapping['pc fails'] in assignment
+
+    # cardinality constraint of 2 *over input vars only*
+    pc_cnf2 = pc_cnf.copy()
+    pc_cnf2.add_cardinality_constraint(2, variables=input_vars.values())
+    sat, assignment = pc_cnf2.solve()
+    assert sat == True
+    assert var_mapping['pc fails'] in assignment
+
+    # cardinality constraint of 1 *over input vars only*
+    pc_cnf1 = pc_cnf.copy()
+    pc_cnf1.add_cardinality_constraint(1, variables=input_vars.values())
+    sat, assignment = pc_cnf1.solve()
     assert sat == False

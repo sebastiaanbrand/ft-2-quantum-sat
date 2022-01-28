@@ -23,6 +23,13 @@ class CNF:
         return fields.__str__()
 
 
+    def copy(self):
+        f = CNF()
+        f.num_vars = self.num_vars
+        f.clauses = self.clauses.copy()
+        return f
+
+
     def get_vars(self):
         return list(range(1, self.num_vars + 1))
 
@@ -139,10 +146,11 @@ class CNF:
             print("Gate type '{}' currently not supported".format(gate_type))
 
 
-    def add_cardinality_constraint(self, at_most):
-        variables = self.get_vars()
-        card_constraint = CardEnc.atmost(variables, bound=at_most)
-        for clause in card_constraint.clauses:
+    def add_cardinality_constraint(self, at_most, variables=None):
+        if variables is None:
+            variables = self.get_vars()
+        card = CardEnc.atmost(variables, bound=at_most, top_id=self.num_vars)
+        for clause in card.clauses:
             self.add_clause(clause)
 
 
