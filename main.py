@@ -1,5 +1,4 @@
-import xml.etree.ElementTree as ET
-import random
+#import xml.etree.ElementTree as ET
 
 from ft_2_quantum_sat import fault_tree
 from ft_2_quantum_sat import cnf
@@ -21,5 +20,11 @@ if __name__ == '__main__':
     v5 = f.add_tseitin_OR(v3, v4)
     v6 = f.add_tseitin_NOT(v5)
 
-
     print(f)
+
+    
+    car_ft = fault_tree.FaultTree()
+    car_ft.set_top_event('car breaks')
+    car_ft.add_gate('car breaks', 'or', ['engine breaks', 'wheel issue'])
+    car_ft.add_gate('wheel issue', 'and', ['wheel breaks', 'no spare'])
+    car_ft.save_as_image('car_ft.png')

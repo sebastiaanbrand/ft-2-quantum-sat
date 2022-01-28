@@ -30,7 +30,7 @@ setup(
     license="European Union Public License 1.2",
 
     packages=find_packages(),
-    install_requires=["numpy", "python-sat"],
+    install_requires=["numpy", "python-sat", "networkx"],
     # Don't change these two lines
     tests_require=["pytest"],
     cmdclass={'test': PyTest},
