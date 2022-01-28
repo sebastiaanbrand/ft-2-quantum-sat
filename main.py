@@ -25,6 +25,11 @@ if __name__ == '__main__':
     
     car_ft = fault_tree.FaultTree()
     car_ft.set_top_event('car breaks')
+    car_ft.add_basic_event('engine breaks', 0.05)
+    car_ft.add_basic_event('wheel breaks', 0.1)
+    car_ft.add_basic_event('no spare', 0.3)
     car_ft.add_gate('car breaks', 'or', ['engine breaks', 'wheel issue'])
     car_ft.add_gate('wheel issue', 'and', ['wheel breaks', 'no spare'])
     car_ft.save_as_image('car_ft.png')
+
+    car_ft.to_cnf()
