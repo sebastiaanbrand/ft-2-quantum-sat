@@ -1,6 +1,8 @@
 from black import InvalidInput
 from pysat.solvers import Glucose3
 from pysat.card import CardEnc
+from qiskit.aqua.algorithms import Grover
+from qiskit.aqua.components.oracles import LogicalExpressionOracle
 
 class CNF:
     """
@@ -186,6 +188,13 @@ class CNF:
         for clause in card.clauses:
             self.add_clause(clause)
 
+    
+    def solve(self, method=None):
+        if method == 'grover':
+            return self._solve_grover()
+        else:
+            return self._solve_glucose_3()
+
 
     def _solve_glucose_3(self):
         g = Glucose3()
@@ -193,6 +202,26 @@ class CNF:
             g.add_clause(list(clause))
         return (g.solve(), g.get_model())
 
+    def _solve_grover(self):
+        # TODO: format self
+        input_3sat_instance = '''
+        c example DIMACS-CNF 3-SAT
+        p cnf 3 5
+        -1 -2 -3 0
+        1 -2 3 0
+        1 2 -3 0
+        1 -2 -3 0
+        -1 2 3 0
+        '''
+        oracle = LogicalExpressionOracle(input_3sat_instance)
+        print(oracle)
 
-    def solve(self, method=None):
-        return self._solve_glucose_3()
+        grover = Grover(oracle)
+        grover_circ = grover.construct_circuit()
+        print(grover)
+        print(grover_circ)
+        
+        # TODO: sat count?
+
+        # TODO run circuit
+
