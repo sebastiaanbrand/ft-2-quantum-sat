@@ -1,3 +1,4 @@
+from black import InvalidInput
 from pysat.solvers import Glucose3
 from pysat.card import CardEnc
 
@@ -69,7 +70,7 @@ class CNF:
         creates a new variable.
 
         Returns:
-            The added variable `c`.
+            The variable `c`.
         """
         if (c is None):
             c = self.get_new_var()
@@ -85,7 +86,7 @@ class CNF:
         creates a new variable.
 
         Returns:
-            The added variable `c`.
+            The variable `c`.
         """
         if (c is None):
             c = self.get_new_var()
@@ -101,7 +102,7 @@ class CNF:
         creates a new variable.
 
         Returns:
-            The added variable `c`.
+            The variable `c`.
         """
         if (b is None):
             b = self.get_new_var()
@@ -110,40 +111,72 @@ class CNF:
         return b
 
 
-    def add_tseitin_multi_AND(self, inputs, output):
+    def add_tseitin_multi_AND(self, inputs, output=None):
         """
-        TODO: support for multi fan-in gates
+        Adds clauses such that BIG_AND(inputs) <==> output. If the variable
+        `output` is not given, creates a new variable.
+
+        Returns:
+            The variable `output`.
         """
-        if len(inputs) == 2:
-            self.add_tseitin_AND(inputs[0], inputs[1], output)
+        if len(inputs) < 1:
+            raise InvalidInput("at least one input expected")
+        elif len(inputs) == 1:
+            if (output is None):
+                return inputs[0]
+            else:
+                raise InvalidInput("please don't add unnecessary identities")
+        elif len(inputs) == 2:
+            return self.add_tseitin_AND(inputs[0], inputs[1], output)
         else:
-            print("Multi fan-in AND gates not supported yet")
-            exit()
-        return output
+            # if more than 2 inputs: do AND of left and right
+            l_inputs = inputs[:int(len(inputs)/2)]
+            r_inputs = inputs[int(len(inputs)/2):]
+            l_output = self.add_tseitin_multi_AND(l_inputs)
+            r_output = self.add_tseitin_multi_AND(r_inputs)
+            return self.add_tseitin_AND(l_output, r_output, output)
 
 
-    def add_tseitin_multi_OR(self, inputs, output):
+    def add_tseitin_multi_OR(self, inputs, output=None):
         """
-        TODO: support for multi fan-in gates
+        Adds clauses such that BIG_OR(inputs) <==> output. If the variable
+        `output` is not given, creates a new variable.
+
+        Returns:
+            The variable `output`.
         """
-        if len(inputs) == 2:
-            self.add_tseitin_OR(inputs[0], inputs[1], output)
+        if len(inputs) < 1:
+            raise InvalidInput("at least one input expected")
+        elif len(inputs) == 1:
+            if (output is None):
+                return inputs[0]
+            else:
+                raise InvalidInput("please don't add unnecessary identities")
+        elif (len(inputs) == 2):
+            return self.add_tseitin_OR(inputs[0], inputs[1], output)
         else:
-            print("Multi fan-in OR gates not supported yet")
-            exit()
-        return output
+            # if more than 2 inputs: do OR of left and right
+            l_inputs = inputs[:int(len(inputs)/2)]
+            r_inputs = inputs[int(len(inputs)/2):]
+            l_output = self.add_tseitin_multi_OR(l_inputs)
+            r_output = self.add_tseitin_multi_OR(r_inputs)
+            return self.add_tseitin_OR(l_output, r_output, output)
 
 
     def add_tseitin_multi(self, gate_type, inputs, output):
         """
-        TODO: support for multi fan-in gates
+        Adds clauses such that GATETYPE(inputs) <==> output. If the variable
+        `output` is not given, creates a new variable.
+
+        Returns:
+            The variable `output`.
         """
         if gate_type == 'and':
             return self.add_tseitin_multi_AND(inputs, output)
         elif gate_type == 'or':
             return self.add_tseitin_multi_OR(inputs, output)
         else:
-            print("Gate type '{}' currently not supported".format(gate_type))
+            raise InvalidInput("Gate type '{}' currently not supported".format(gate_type))
 
 
     def add_cardinality_constraint(self, at_most, variables=None):

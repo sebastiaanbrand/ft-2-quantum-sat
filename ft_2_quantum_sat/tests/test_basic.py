@@ -1,4 +1,5 @@
 
+from numpy import add_newdoc_ufunc
 from ft_2_quantum_sat import cnf, fault_tree
 
 
@@ -84,6 +85,163 @@ def test_cardinality_constraint():
     f1.add_cardinality_constraint(1)
     sat, _ = f1.solve()
     assert sat == False
+
+def test_ft_and():
+    """
+    Test a fault tree which is a sinlge AND gate with 2 inputs
+    """
+
+    # build fault tree
+    and_ft = fault_tree.FaultTree()
+    and_ft.set_top_event('out')
+    and_ft.add_basic_event('x1', 0.1)
+    and_ft.add_basic_event('x2', 0.3)
+    and_ft.add_gate('out', 'and', ['x1', 'x2'])
+
+    # convert to CNF and solve
+    and_cnf, var_mapping, _ = and_ft.to_cnf()
+    sat, assignment = and_cnf.solve()
+    assert sat == True
+    assert var_mapping['x1'] in assignment
+    assert var_mapping['x2'] in assignment
+    assert var_mapping['out'] in assignment
+
+def test_ft_or():
+    """
+    Test a fault tree which is a single OR gate with 2 inputs
+    """
+
+    # build fault tree
+    or_ft = fault_tree.FaultTree()
+    or_ft.set_top_event('out')
+    or_ft.add_basic_event('x1', 0.1)
+    or_ft.add_basic_event('x2', 0.3)
+    or_ft.add_gate('out', 'or', ['x1', 'x2'])
+
+    # convert to CNF and solve
+    or_cnf, vm, _ = or_ft.to_cnf()
+    sat, a = or_cnf.solve()
+    assert sat == True
+    assert vm['x1'] in a or vm['x2'] in a
+    assert vm['out'] in a
+
+def test_ft_multi_and():
+    """
+    Test multi fan-in AND gate
+    """
+
+    # build fault tree AND(x1, x2, x3)
+    and_3_ft = fault_tree.FaultTree()
+    and_3_ft.set_top_event('out')
+    and_3_ft.add_basic_event('x1', 0.1)
+    and_3_ft.add_basic_event('x2', 0.3)
+    and_3_ft.add_basic_event('x3', 0.05)
+    and_3_ft.add_gate('out', 'and', ['x1', 'x2', 'x3'])
+
+    # convert to CNF and solve
+    and_cnf, var_mapping, _ = and_3_ft.to_cnf()
+    sat, assignment, = and_cnf.solve()
+    assert sat == True
+    assert var_mapping['x1'] in assignment
+    assert var_mapping['x2'] in assignment
+    assert var_mapping['x3'] in assignment
+    assert var_mapping['out'] in assignment
+
+    # build fault tree AND(x1, x2, x3, x4)
+    and_4_ft = fault_tree.FaultTree()
+    and_4_ft.set_top_event('out')
+    and_4_ft.add_basic_event('x1', 0.1)
+    and_4_ft.add_basic_event('x2', 0.3)
+    and_4_ft.add_basic_event('x3', 0.05)
+    and_4_ft.add_basic_event('x4', 0.2)
+    and_4_ft.add_gate('out', 'and', ['x1', 'x2', 'x3', 'x4'])
+
+    # convert to CNF and solve
+    and_cnf, var_mapping, _ = and_4_ft.to_cnf()
+    sat, assignment, = and_cnf.solve()
+    assert sat == True
+    assert var_mapping['x1'] in assignment
+    assert var_mapping['x2'] in assignment
+    assert var_mapping['x3'] in assignment
+    assert var_mapping['x4'] in assignment
+    assert var_mapping['out'] in assignment
+
+    # build fault tree AND(x1, x2, x3, x4, x5)
+    and_5_ft = fault_tree.FaultTree()
+    and_5_ft.set_top_event('out')
+    and_5_ft.add_basic_event('x1', 0.1)
+    and_5_ft.add_basic_event('x2', 0.3)
+    and_5_ft.add_basic_event('x3', 0.05)
+    and_5_ft.add_basic_event('x4', 0.2)
+    and_5_ft.add_basic_event('x5', 0.2)
+    and_5_ft.add_gate('out', 'and', ['x1', 'x2', 'x3', 'x4', 'x5'])
+
+    # convert to CNF and solve
+    and_cnf, var_mapping, _ = and_5_ft.to_cnf()
+    sat, assignment, = and_cnf.solve()
+    assert sat == True
+    assert var_mapping['x1'] in assignment
+    assert var_mapping['x2'] in assignment
+    assert var_mapping['x3'] in assignment
+    assert var_mapping['x4'] in assignment
+    assert var_mapping['x5'] in assignment
+    assert var_mapping['out'] in assignment
+
+def test_ft_multi_or():
+    """
+    Test multi fan-in OR gate
+    """
+
+    # build fault tree OR(x1, x2, x3)
+    or_3_ft = fault_tree.FaultTree()
+    or_3_ft.set_top_event('out')
+    or_3_ft.add_basic_event('x1', 0.1)
+    or_3_ft.add_basic_event('x2', 0.3)
+    or_3_ft.add_basic_event('x3', 0.2)
+    or_3_ft.add_gate('out', 'or', ['x1', 'x2', 'x3'])
+
+    # convert to CNF and solve
+    or_cnf, vm, _ = or_3_ft.to_cnf()
+    sat, a = or_cnf.solve()
+    assert sat == True
+    assert (vm['x1'] in a) or (vm['x2'] in a) or (vm['x3'] in a)
+    assert vm['out'] in a
+
+    # build fault tree OR(x1, x2, x3, x4)
+    or_4_ft = fault_tree.FaultTree()
+    or_4_ft.set_top_event('out')
+    or_4_ft.add_basic_event('x1', 0.1)
+    or_4_ft.add_basic_event('x2', 0.3)
+    or_4_ft.add_basic_event('x3', 0.2)
+    or_4_ft.add_basic_event('x4', 0.1)
+    or_4_ft.add_gate('out', 'or', ['x1', 'x2', 'x3', 'x4'])
+
+    # convert to CNF and solve
+    or_cnf, vm, _ = or_4_ft.to_cnf()
+    sat, a = or_cnf.solve()
+    assert sat == True
+    assert  (vm['x1'] in a) or (vm['x2'] in a) or \
+            (vm['x3'] in a) or (vm['x4'] in a)
+    assert vm['out'] in a
+
+    # build fault tree OR(x1, x2, x3, x4, x5)
+    or_5_ft = fault_tree.FaultTree()
+    or_5_ft.set_top_event('out')
+    or_5_ft.add_basic_event('x1', 0.1)
+    or_5_ft.add_basic_event('x2', 0.3)
+    or_5_ft.add_basic_event('x3', 0.2)
+    or_5_ft.add_basic_event('x4', 0.1)
+    or_5_ft.add_basic_event('x5', 0.05)
+    or_5_ft.add_gate('out', 'or', ['x1', 'x2', 'x3', 'x4', 'x5'])
+
+    # convert to CNF and solve
+    or_cnf, vm, _ = or_5_ft.to_cnf()
+    sat, a = or_cnf.solve()
+    assert sat == True
+    assert  (vm['x1'] in a) or (vm['x2'] in a) or \
+            (vm['x3'] in a) or (vm['x4'] in a) or (vm['x5'] in a)
+    assert vm['out'] in a
+
 
 
 def test_ft_example_1():
