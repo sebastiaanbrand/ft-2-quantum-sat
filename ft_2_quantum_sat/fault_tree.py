@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from networkx.drawing.nx_pydot import graphviz_layout
+import xml.etree.ElementTree as ElementTree
 
 from ft_2_quantum_sat import cnf
 
@@ -79,6 +80,59 @@ class FaultTree:
         return f, all_vars, input_vars
 
 
+    def load_from_xml(self, filepath):
+        # 1. make sure all fields are empty
+        self.__init__()
+
+        # 2. load xml
+        xml = ElementTree.parse(filepath)
+
+        # 3. get all basic events
+        basic_events = xml.iter('define-basic-event')
+        for e in basic_events:
+            self._parse_basic_event_xml(e)
+        
+        # 4. get all gates
+        gates = xml.iter('define-gate')
+        for g in gates:
+            self._parse_gate_xml(g)
+        
+        # 5. get top event
+        self._parse_top_event_xml(xml)
+
+
+    def _parse_basic_event_xml(self, xml_element):
+        # TODO: also parse prob
+        self.add_basic_event(xml_element.attrib['name'], prob=0)
+
+
+    def _parse_gate_xml(self, xml_element):
+        """ Gets the relevant info from <define-gate> xml element """
+
+        # gate name
+        name = xml_element.attrib['name']
+
+        # gate type (or / and)
+        children = xml_element.getchildren()
+        assert len(children) == 1
+        gate = children[0]
+        gate_type = gate.tag
+
+        # gate inputs
+        inputs = []
+        for i in gate.getchildren():
+            inputs.append(i.attrib['name'])
+
+        self.add_gate(name, gate_type, inputs)
+
+    def _parse_top_event_xml(self, xml_element):
+        """ Assumes the first gate under <define-fault-tree> is top event """
+        ft_defs = list(xml_element.iter('define-fault-tree'))
+        assert len(ft_defs) == 1
+        event_name = ft_defs[0].getchildren()[0].attrib['name']
+        self.set_top_event(event_name)
+
+
     def save_as_image(self, output_file):
         """ Saves the fault tree as image to the the given output file """
         # split the nodes into and-gates, or-gates, and basic events
@@ -99,8 +153,9 @@ class FaultTree:
         nx.draw_networkx_nodes(self.graph, pos, nodelist=or_nodes, node_shape='v')
         nx.draw_networkx_nodes(self.graph, pos, nodelist=input_nodes, node_shape='s')
         nx.draw_networkx_edges(self.graph, pos)
-        nx.draw_networkx_labels(self.graph, pos)
-        plt.savefig(output_file)
+        nx.draw_networkx_labels(self.graph, pos, font_size=6)
+        plt.tight_layout()
+        plt.savefig(output_file, dpi=300)
     
 
 
