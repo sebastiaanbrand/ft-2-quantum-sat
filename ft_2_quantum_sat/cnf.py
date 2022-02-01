@@ -1,8 +1,13 @@
 from black import InvalidInput
 from pysat.solvers import Glucose3
 from pysat.card import CardEnc
-from qiskit.aqua.algorithms import Grover
-from qiskit.aqua.components.oracles import LogicalExpressionOracle
+
+from qiskit import Aer
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import Grover, AmplificationProblem
+from qiskit.circuit.library.phase_oracle import PhaseOracle
+from qiskit.tools.visualization import plot_histogram
+
 
 class CNF:
     """
@@ -187,8 +192,31 @@ class CNF:
         card = CardEnc.atmost(variables, bound=at_most, top_id=self.num_vars)
         for clause in card.clauses:
             self.add_clause(clause)
+        
+    
+    def _str_format_lit(self, lit):
+        """ Formats a literal as a string """
+        if (lit > 0):
+            return 'x{}'.format(lit)
+        elif (lit < 0):
+            return '~x{}'.format(abs(lit))
+        else:
+            raise InvalidInput("Literal {} is invalid".format(lit))
 
     
+    def str_format_formula(self):
+        """ Formats the CNF formula as a string """
+        cnf_str = ''
+        for clause in self.clauses:
+            cnf_str += '('
+            for lit in clause:
+                cnf_str += self._str_format_lit(lit) + ' | '
+            cnf_str = cnf_str[:-3] # remove last ' | '
+            cnf_str += ') & '
+        cnf_str = cnf_str[:-3] # remove last ' & '
+        return cnf_str
+
+
     def solve(self, method=None):
         if method == 'grover':
             return self._solve_grover()
@@ -203,25 +231,20 @@ class CNF:
         return (g.solve(), g.get_model())
 
     def _solve_grover(self):
-        # TODO: format self
-        input_3sat_instance = '''
-        c example DIMACS-CNF 3-SAT
-        p cnf 3 5
-        -1 -2 -3 0
-        1 -2 3 0
-        1 2 -3 0
-        1 -2 -3 0
-        -1 2 3 0
-        '''
-        oracle = LogicalExpressionOracle(input_3sat_instance)
-        print(oracle)
 
-        grover = Grover(oracle)
-        grover_circ = grover.construct_circuit()
-        print(grover)
-        print(grover_circ)
+        expression = self.str_format_formula() #'(x1 ^ x2) & ~(x3 ^ x4) & (x2 & x3 & x4)'
+        print(expression)
+        oracle = PhaseOracle(expression)
+
+        problem = AmplificationProblem(oracle, is_good_state=oracle.evaluate_bitstring)
+
+        backend = Aer.get_backend('aer_simulator')
+        quantum_instance = QuantumInstance(backend, shots=1000)
+        grover = Grover(quantum_instance=quantum_instance)
         
-        # TODO: sat count?
-
-        # TODO run circuit
+        result = grover.amplify(problem)
+        print(result.assignment)
+        print(result.circuit_results[0])
+        
+        # TODO: get the circuit and run in other simulator?
 
