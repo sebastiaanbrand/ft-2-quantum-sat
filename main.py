@@ -25,6 +25,8 @@ if __name__ == '__main__':
     sat, assignment = f.solve()
     print(sat, assignment)
 
-    f.solve('grover')
+    sat, assignment = f.solve('grover')
+    print(sat, assignment)
+
 
     #quantum_solver.test_oracle()

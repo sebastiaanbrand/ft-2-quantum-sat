@@ -205,7 +205,7 @@ class CNF:
 
     
     def str_format_formula(self):
-        """ Formats the CNF formula as a string """
+        """ Formats the CNF formula as a string. """
         cnf_str = ''
         for clause in self.clauses:
             cnf_str += '('
@@ -215,11 +215,26 @@ class CNF:
             cnf_str += ') & '
         cnf_str = cnf_str[:-3] # remove last ' & '
         return cnf_str
+    
+
+    def is_satisfying(self, assignment):
+        """ Checks if a given assignment is satisfying. """
+
+        # Every clause must contain at least one literal in the assignment
+        for clause in self.clauses:
+            sat = False
+            for lit in clause:
+                if lit in assignment:
+                    sat = True
+                    break
+            if sat == False:
+                return False
+        return True
 
 
     def solve(self, method=None):
         if method == 'grover':
-            return self._solve_grover()
+            return self._solve_grover_qiskit()
         else:
             return self._solve_glucose_3()
 
@@ -230,21 +245,37 @@ class CNF:
             g.add_clause(list(clause))
         return (g.solve(), g.get_model())
 
-    def _solve_grover(self):
 
-        expression = self.str_format_formula() #'(x1 ^ x2) & ~(x3 ^ x4) & (x2 & x3 & x4)'
-        print(expression)
-        oracle = PhaseOracle(expression)
+    def _process_grover_result(self, result):
+        
+        # format assignment from bitstring to literals (e.g. 110 -> [1,2,-3])
+        assignment = list(range(1, self.num_vars + 1))
+        measurement = result.assignment[::-1] # reverse so that q0 is index 0
+        for i, bit in enumerate(measurement):
+            if (bit == '0'):
+                assignment[i] *= -1
 
-        problem = AmplificationProblem(oracle, is_good_state=oracle.evaluate_bitstring)
+        # check if assignment is actually satisfying
+        sat = self.is_satisfying(assignment)
 
+        return sat, assignment
+
+
+    def _solve_grover_qiskit(self, shots=1000):
+        """ Find a satisfying assignment using Qiskit's Grover. """
+
+        expression = self.str_format_formula()
+        oracle = PhaseOracle(expression) # oracle.data contains circuit info
+        problem = AmplificationProblem(oracle, 
+                                       is_good_state=oracle.evaluate_bitstring)
         backend = Aer.get_backend('aer_simulator')
-        quantum_instance = QuantumInstance(backend, shots=1000)
+        quantum_instance = QuantumInstance(backend, shots=shots)
+
+        # without specifying the number of iterations, the algorithm tries 
+        # different number of iteratsion, and after each iteration checks if a 
+        # good state has been measured using good_state.
         grover = Grover(quantum_instance=quantum_instance)
-        
         result = grover.amplify(problem)
-        print(result.assignment)
-        print(result.circuit_results[0])
         
-        # TODO: get the circuit and run in other simulator?
+        return self._process_grover_result(result)
 
