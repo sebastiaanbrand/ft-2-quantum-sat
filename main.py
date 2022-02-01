@@ -22,11 +22,17 @@ if __name__ == '__main__':
 
     print(f)
 
-    sat, assignment = f.solve()
-    print(sat, assignment)
+    assignments = f.solve()
+    print(assignments)
 
-    sat, assignment = f.solve('grover')
-    print(sat, assignment)
+    assignments = f.solve_n(n=3)
+    print(assignments)
+
+    assignments = f.solve(method='grover')
+    print(assignments)
+
+    assignments = f.solve_n(n=3, method='grover')
+    print(assignments)
 
 
     #quantum_solver.test_oracle()

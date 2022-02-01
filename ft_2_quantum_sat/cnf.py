@@ -230,38 +230,58 @@ class CNF:
             if sat == False:
                 return False
         return True
+    
 
-
-    def solve(self, method=None):
+    def solve_n(self, n=1, method=None, block_self=False):
+        """ Get `n` satisfying assignments if that many exist. """
         if method == 'grover':
-            return self._solve_grover_qiskit()
+            res = self._solve_grover_qiskit(n=n)
         else:
-            return self._solve_glucose_3()
+            res = self._solve_glucose_3(n=n)
+
+        # block the found assignments is block_self set to True
+        if (block_self):
+            print("blocking model {}".format(model))
+            for model in res:
+                block = [-lit for lit in model]
+
+        return res
 
 
-    def _solve_glucose_3(self):
+    def solve(self, method=None, block_self=False):
+        """ Same as solve_n(n=1). """
+        return self.solve_n(n=1, method=method, block_self=block_self)
+
+
+    def _solve_glucose_3(self, n):
+
+        # create initial formula
         g = Glucose3()
         for clause in self.clauses:
             g.add_clause(list(clause))
-        return (g.solve(), g.get_model())
+
+        # enumerate models
+        res = []
+        done = False
+        found = 0
+        while (not done and found < n):
+            sat = g.solve()
+            model = g.get_model()
+            if sat:
+                # add model to res
+                res.append(model)
+                found += 1
+
+                # block found model (both in g and self)
+                block = [-lit for lit in model]
+                g.add_clause(block)
+            else:
+                done = True
+
+        return res
 
 
-    def _process_grover_result(self, result):
-        
-        # format assignment from bitstring to literals (e.g. 110 -> [1,2,-3])
-        assignment = list(range(1, self.num_vars + 1))
-        measurement = result.assignment[::-1] # reverse so that q0 is index 0
-        for i, bit in enumerate(measurement):
-            if (bit == '0'):
-                assignment[i] *= -1
-
-        # check if assignment is actually satisfying
-        sat = self.is_satisfying(assignment)
-
-        return sat, assignment
-
-
-    def _solve_grover_qiskit(self, shots=1000):
+    def _solve_grover_qiskit(self, n=1, shots=1000):
         """ Find a satisfying assignment using Qiskit's Grover. """
 
         expression = self.str_format_formula()
@@ -276,6 +296,35 @@ class CNF:
         # good state has been measured using good_state.
         grover = Grover(quantum_instance=quantum_instance)
         result = grover.amplify(problem)
-        
-        return self._process_grover_result(result)
 
+        return self._process_grover_result(result, n)
+
+
+    def _process_grover_result(self, result, n):
+        # sort measurements by frequency
+        m = result.circuit_results[0]
+        sorted_m = sorted(m.items(), key=lambda x: x[1], reverse=True)
+
+        # enumerate sorted measurements
+        res = []
+        done = False
+        found = 0
+        while (not done and found < n):
+            # format assignment from bitstring to lits (e.g. 110 -> [1,2,-3])
+            assignment = list(range(1, self.num_vars + 1))
+            measurement, _ = sorted_m[found]
+            measurement = measurement[::-1] # reverse so that q0 is index 0
+
+            for i, bit in enumerate(measurement):
+                if (bit == '0'):
+                    assignment[i] *= -1
+
+            # check if assignment is actually satisfying
+            sat = self.is_satisfying(assignment)
+            if sat:
+                found += 1
+                res.append(assignment)
+            else:
+                done = True
+
+        return res
