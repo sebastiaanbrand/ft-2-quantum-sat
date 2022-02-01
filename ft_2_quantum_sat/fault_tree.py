@@ -80,6 +80,29 @@ class FaultTree:
         return f, all_vars, input_vars
 
 
+    def compute_min_cutsets(self, n, method, cnf=None):
+        """ Computes the `n` smallest number of cutsets of this fault tree. """
+
+        if cnf is None:
+            cnf, _, input_vars = self.to_cnf()
+        else:
+            input_vars = cnf.get_vars()
+
+        k = 1
+        cutsets = []
+        for k in range(1, len(input_vars) + 1):
+            f_k = cnf.copy()
+            f_k.add_cardinality_constraint(at_most=k, variables=input_vars)
+            models = f_k.solve_n(n=n, method=method)
+            for model in models:
+                cutset = model[:len(input_vars)]
+                if cutset not in cutsets:
+                    cutsets.append(cutset)
+                    if len(cutsets) == n:
+                        return cutsets
+        return cutsets
+
+
     def load_from_xml(self, filepath):
         # 1. make sure all fields are empty
         self.__init__()

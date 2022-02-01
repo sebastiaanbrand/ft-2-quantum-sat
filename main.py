@@ -34,5 +34,11 @@ if __name__ == '__main__':
     assignments = f.solve_n(n=3, method='grover')
     print(assignments)
 
+    ft = fault_tree.FaultTree()
+    cutsets = ft.compute_min_cutsets(n=2, method='classical', cnf=f)
+    print("cutsets:", cutsets)
 
-    #quantum_solver.test_oracle()
+    ft = fault_tree.FaultTree()
+    cutsets = ft.compute_min_cutsets(n=2, method='grover', cnf=f)
+    print("cutsets:", cutsets)
+
