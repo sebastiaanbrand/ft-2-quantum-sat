@@ -206,16 +206,21 @@ class CNF:
     
     def str_format_formula(self):
         """ Formats the CNF formula as a string. """
+        var_order = {} # keep track of appearance order of vars in the string
+        i = 0
         cnf_str = ''
         for clause in self.clauses:
             cnf_str += '('
             for lit in clause:
                 cnf_str += self._str_format_lit(lit) + ' | '
+                if abs(lit) not in var_order.keys():
+                    var_order[abs(lit)] = i
+                    i += 1
             cnf_str = cnf_str[:-3] # remove last ' | '
             cnf_str += ') & '
         cnf_str = cnf_str[:-3] # remove last ' & '
-        return cnf_str
-    
+        return cnf_str, var_order
+
 
     def is_satisfying(self, assignment):
         """ Checks if a given assignment is satisfying. """
@@ -230,61 +235,51 @@ class CNF:
             if sat == False:
                 return False
         return True
-    
 
-    def solve_n(self, n=1, method=None, block_self=False):
-        """ Get `n` satisfying assignments if that many exist. """
+
+    def block(self, a):
+        """ Block the given (partial) assignment. """
+        block = [-lit for lit in a]
+        self.add_clause(block)
+
+
+    def block_positive_only(self, a):
+        """ 
+        For an assignment a, blocks the partial assignment which is the 
+        positive literals in a.
+        """
+        block = []
+        for lit in a:
+            if lit > 0:
+                block.append(-lit)
+        if len(block) > 0:
+            self.add_clause(block)
+
+
+    def solve(self, method=None):
+        """ Get 1 satisfying assignments it exists. """
         if method == 'grover':
-            res = self._solve_grover_qiskit(n=n)
+            return self._solve_grover_qiskit()
         else:
-            res = self._solve_glucose_3(n=n)
-
-        # block the found assignments is block_self set to True
-        if (block_self):
-            print("blocking model {}".format(model))
-            for model in res:
-                block = [-lit for lit in model]
-
-        return res
+            return self._solve_glucose_3()
 
 
-    def solve(self, method=None, block_self=False):
-        """ Same as solve_n(n=1). """
-        return self.solve_n(n=1, method=method, block_self=block_self)
-
-
-    def _solve_glucose_3(self, n):
+    def _solve_glucose_3(self):
 
         # create initial formula
         g = Glucose3()
         for clause in self.clauses:
             g.add_clause(list(clause))
 
-        # enumerate models
-        res = []
-        done = False
-        found = 0
-        while (not done and found < n):
-            sat = g.solve()
-            model = g.get_model()
-            if sat:
-                # add model to res
-                res.append(model)
-                found += 1
-
-                # block found model (both in g and self)
-                block = [-lit for lit in model]
-                g.add_clause(block)
-            else:
-                done = True
-
-        return res
+        sat = g.solve()
+        model = g.get_model()
+        return sat, model
 
 
-    def _solve_grover_qiskit(self, n=1, shots=1000):
+    def _solve_grover_qiskit(self, shots=100):
         """ Find a satisfying assignment using Qiskit's Grover. """
 
-        expression = self.str_format_formula()
+        expression, var_order = self.str_format_formula()
         oracle = PhaseOracle(expression) # oracle.data contains circuit info
         problem = AmplificationProblem(oracle, 
                                        is_good_state=oracle.evaluate_bitstring)
@@ -297,10 +292,16 @@ class CNF:
         grover = Grover(quantum_instance=quantum_instance)
         result = grover.amplify(problem)
 
-        return self._process_grover_result(result, n)
+        # get the top-1 most frequent result
+        assignments = self._process_grover_result(result, var_order, n=1)
+        if len(assignments) == 0:
+            return False, None
+        else:
+            return True, assignments[0]
 
 
-    def _process_grover_result(self, result, n):
+    def _process_grover_result(self, result, var_order, n):
+
         # sort measurements by frequency
         m = result.circuit_results[0]
         sorted_m = sorted(m.items(), key=lambda x: x[1], reverse=True)
@@ -311,13 +312,21 @@ class CNF:
         found = 0
         while (not done and found < n):
             # format assignment from bitstring to lits (e.g. 110 -> [1,2,-3])
-            assignment = list(range(1, self.num_vars + 1))
             measurement, _ = sorted_m[found]
             measurement = measurement[::-1] # reverse so that q0 is index 0
 
-            for i, bit in enumerate(measurement):
+            # NOTE: the qubit numbers from PhaseOracle(expression) correspond
+            # to the order in which the variables apprear in `expression`. 
+            # Because of this, we keep track of the `var_order` in which the 
+            # variables apprear in `expression` and need to do a bit of juggling
+            # while translating the measurement outcome to the assignment 
+            assignment = []
+            for var in range(1, self.num_vars + 1):
+                bit = measurement[var_order[var]]
                 if (bit == '0'):
-                    assignment[i] *= -1
+                    assignment.append(-var)
+                else:
+                    assignment.append(var)
 
             # check if assignment is actually satisfying
             sat = self.is_satisfying(assignment)

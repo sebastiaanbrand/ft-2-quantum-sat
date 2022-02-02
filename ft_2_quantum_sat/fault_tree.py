@@ -80,26 +80,41 @@ class FaultTree:
         return f, all_vars, input_vars
 
 
-    def compute_min_cutsets(self, n, method, cnf=None):
-        """ Computes the `n` smallest number of cutsets of this fault tree. """
+    def compute_min_cutsets(self, m, method, cnf=None):
+        """ Computes the `m` smallest number of cutsets of this fault tree. """
 
         if cnf is None:
-            cnf, _, input_vars = self.to_cnf()
+            f, _, input_vars = self.to_cnf()
         else:
+            f = cnf.copy()
             input_vars = cnf.get_vars()
 
         k = 1
         cutsets = []
         for k in range(1, len(input_vars) + 1):
-            f_k = cnf.copy()
+            f_k = f.copy()
             f_k.add_cardinality_constraint(at_most=k, variables=input_vars)
-            models = f_k.solve_n(n=n, method=method)
-            for model in models:
+
+            sat = True
+            while len(cutsets) < m:
+                sat, model = f_k.solve(method=method)
+                if not sat:
+                    break
                 cutset = model[:len(input_vars)]
-                if cutset not in cutsets:
-                    cutsets.append(cutset)
-                    if len(cutsets) == n:
-                        return cutsets
+
+                # block this cutset from current f_k and future f_k
+                # TODO: don't just block the entire model, instead only block
+                # the positive literals (i.e. the actual cutset)
+                # (only works for FTs, not random CNF formulas, since for an
+                # FT the 000...0 assignment is never satisfying
+                f_k.block(cutset)
+                f.block(cutset)
+
+                # add cutset and return if enough
+                cutsets.append(cutset)
+                if len(cutsets) == m:
+                    return cutsets
+
         return cutsets
 
 

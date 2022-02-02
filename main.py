@@ -22,23 +22,17 @@ if __name__ == '__main__':
 
     print(f)
 
-    assignments = f.solve()
-    print(assignments)
+    sat, assignment = f.solve()
+    print(sat, assignment)
 
-    assignments = f.solve_n(n=3)
-    print(assignments)
-
-    assignments = f.solve(method='grover')
-    print(assignments)
-
-    assignments = f.solve_n(n=3, method='grover')
-    print(assignments)
+    sat, assignment = f.solve(method='grover')
+    print(sat, assignment)
 
     ft = fault_tree.FaultTree()
-    cutsets = ft.compute_min_cutsets(n=2, method='classical', cnf=f)
+    cutsets = ft.compute_min_cutsets(m=4, method='classical', cnf=f)
     print("cutsets:", cutsets)
 
     ft = fault_tree.FaultTree()
-    cutsets = ft.compute_min_cutsets(n=2, method='grover', cnf=f)
+    cutsets = ft.compute_min_cutsets(m=2, method='grover', cnf=f)
     print("cutsets:", cutsets)
 
