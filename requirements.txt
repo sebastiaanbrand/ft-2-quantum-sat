@@ -3,5 +3,5 @@
 black       # 22.1.0
 matplotlib  # 3.5.1
 networkx    # 2.6.3
-pysat       # 0.1.7.dev15
+python-sat  # 0.1.7.dev15
 qiskit      # 0.34.1
