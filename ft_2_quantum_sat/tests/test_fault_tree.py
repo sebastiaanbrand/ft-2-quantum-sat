@@ -20,6 +20,7 @@ def test_ft_and():
     assert var_mapping['x2'] in assignment
     assert var_mapping['out'] in assignment
 
+
 def test_ft_or():
     """
     Test a fault tree which is a single OR gate with 2 inputs.
@@ -38,6 +39,7 @@ def test_ft_or():
     assert sat == True
     assert vm['x1'] in a or vm['x2'] in a
     assert vm['out'] in a
+
 
 def test_ft_multi_and():
     """
@@ -101,6 +103,7 @@ def test_ft_multi_and():
     assert var_mapping['x5'] in assignment
     assert var_mapping['out'] in assignment
 
+
 def test_ft_multi_or():
     """
     Test multi fan-in OR gate.
@@ -157,7 +160,6 @@ def test_ft_multi_or():
     assert vm['out'] in a
 
 
-
 def test_ft_example_1():
     """
     Test translation of fault tree to CNF formula on example.
@@ -202,7 +204,8 @@ def test_ft_example_1():
     print(sat, assignment)
     assert sat == True
     assert var_mapping['car breaks'] in assignment
-    
+
+
 def test_ft_example_2():
     """
     Test translation of fault tree to CNF formula on example.
@@ -246,6 +249,7 @@ def test_ft_example_2():
     pc_cnf1.add_cardinality_constraint(1, variables=input_vars)
     sat, assignment = pc_cnf1.solve()
     assert sat == False
+
 
 def test_parse_xml():
     """
@@ -301,3 +305,17 @@ def test_parse_xml():
 
     assert 'SwitchStuckInPosition2' in ft.get_gate_inputs('SwitchFailsInPosition2AndSystem2Fails')
     assert 'LossOfSystem2' in ft.get_gate_inputs('SwitchFailsInPosition2AndSystem2Fails')
+
+
+def test_cutsets_bscu():
+    """
+    Testing finding the minimal cutsets of the BSCU example.
+    """
+    ft = fault_tree.FaultTree.load_from_xml("models/BSCU/BSCU.xml")
+    
+    # There are exactly two cutsets of size 1, so getting the m=2 smallest
+    # cutsets should yield these two
+    cutsets = ft.compute_min_cutsets(m=2, method='classical')
+    assert len(cutsets) == 2
+    assert {'ValidityMonitorFailure'} in cutsets
+    assert {'SwitchStuckInIntermediatePosition'} in cutsets
