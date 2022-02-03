@@ -1,11 +1,11 @@
-from ft_2_quantum_sat import cnf
-
+#from ft_2_quantum_sat import cnf
+from ft_2_quantum_sat.cnf import CNF
 
 def test_new_vars():
     """
     Testing getting new vars for CNF formula.
     """
-    f = cnf.CNF()
+    f = CNF()
     assert f.num_vars == 0
 
     # variables should be added consecutively starting from 1
@@ -34,7 +34,7 @@ def test_solve():
     """
     Testing solve() function.
     """
-    f = cnf.CNF()
+    f = CNF()
     f.add_clause([1, 2])
     f.add_clause([-2])
     f.add_clause([3, 2, -1])
@@ -43,7 +43,7 @@ def test_solve():
     assert assignment == [1, -2, 3]
 
 
-    f = cnf.CNF()
+    f = CNF()
     f.add_clause([1, 2])
     f.add_clause([-2])
     f.add_clause([-1,3])
@@ -59,7 +59,7 @@ def test_cardinality_constraint():
 
     # F = (x1) ^ (~x1 v x2) ^ (~x1 ^ x2 ^ ~x3)
     # no constraint (should be satisfiable)
-    f = cnf.CNF()
+    f = CNF()
     f.add_clause([1])
     f.add_clause([-1, 2])
     f.add_clause([-1, 2, -3])
