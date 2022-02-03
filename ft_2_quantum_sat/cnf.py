@@ -11,49 +11,86 @@ from qiskit.tools.visualization import plot_histogram
 
 class CNF:
     """
-    CNF formula. Variables are given as integers, negations as negative integers.
+    CNF formula. Variables are given as positive integers. Positive (negative) 
+    literals are given by the positive (negative) integer corresponding to the
+    variable number.
 
     Variables are assumed to be numbered consecutively starting from 1, i.e. if
-    num_vars = 5, then the variables are [1,2,3,4,5].
+    num_vars = 5, then the variables are [1, 2, 3, 4, 5].
     """
 
     # TODO: rename this class to avoid clash with stuff in pysat
-    # TODO: map from var number to some label (string)
 
     def __init__(self):
         self.num_vars = 0
         self.clauses = set()
+        self.var_names = {}
 
 
     def __str__(self):
         fields = {}
         fields['clauses'] = self.clauses.__str__()
+        fields['var_names'] = self.var_names.__str__()
         return fields.__str__()
 
 
     def copy(self):
+        """
+        Return a copy of self.
+        """
         f = CNF()
         f.num_vars = self.num_vars
         f.clauses = self.clauses.copy()
+        f.var_names = self.var_names.copy()
         return f
 
 
     def get_vars(self):
+        """
+        Get all the variables as a list.
+        """
         return list(range(1, self.num_vars + 1))
 
 
-    def get_new_var(self):
+    def get_new_var(self, name=''):
+        """
+        Gets a new variable (integer) and sets its name to the given string.
+
+        Args:
+            name: Some string to identify the variable
+        
+        Returns:
+            The new variable.
+        """
         self.num_vars += 1
+        self.var_names[self.num_vars] = name
         return self.num_vars
 
 
     def get_new_vars(self, n):
+        """
+        Get `n` new variables.
+
+        Args:
+            n: The number of new variables
+
+        Returns:
+            The new variables as a list.
+        """
         new_vars = list(range(self.num_vars + 1, self.num_vars + n + 1))
         self.num_vars += (n + 1)
         return new_vars
 
 
     def add_var(self, var):
+        """
+        Adds the given variable to the the list of variables. Note that if there
+        are currently e.g. 5 variables, the only valid input to this function is
+        6.
+
+        Args:
+            var: The variable number to be added.
+        """
         if (abs(var) > self.num_vars + 1):
             print('Variable {} cannot be added:'.format(var))
             print('Current number of variables is {}'.format(self.num_vars))
@@ -64,6 +101,12 @@ class CNF:
 
 
     def add_clause(self, clause):
+        """
+        Adds the given clause to the formula.
+
+        Args:
+            clause: The clause to be added as an iterable of literals.
+        """
         variables = [abs(lit) for lit in clause]
         variables.sort()
         for var in variables:
@@ -187,6 +230,11 @@ class CNF:
 
 
     def add_cardinality_constraint(self, at_most, variables=None):
+        """
+        Adds a cardinality constraint to the CNF formula. If `variables` is 
+        given, the contraint is only over the given variables, otherwise it is
+        over all variables.
+        """
         if variables is None:
             variables = self.get_vars()
         card = CardEnc.atmost(variables, bound=at_most, top_id=self.num_vars)
@@ -195,7 +243,9 @@ class CNF:
         
     
     def _str_format_lit(self, lit):
-        """ Formats a literal as a string """
+        """
+        Formats a literal as a string
+        """
         if (lit > 0):
             return 'x{}'.format(lit)
         elif (lit < 0):
@@ -205,7 +255,9 @@ class CNF:
 
     
     def str_format_formula(self):
-        """ Formats the CNF formula as a string. """
+        """
+        Formats the CNF formula as a string.
+        """
         var_order = {} # keep track of appearance order of vars in the string
         i = 0
         cnf_str = ''
@@ -223,7 +275,9 @@ class CNF:
 
 
     def is_satisfying(self, assignment):
-        """ Checks if a given assignment is satisfying. """
+        """
+        Checks if a given assignment is satisfying.
+        """
 
         # Every clause must contain at least one literal in the assignment
         for clause in self.clauses:
@@ -238,7 +292,12 @@ class CNF:
 
 
     def block(self, a):
-        """ Block the given (partial) assignment. """
+        """
+        Block the given (partial) assignment.
+
+        Args:
+            a: a (partial) assignment given as an iterable of literals.
+        """
         block = [-lit for lit in a]
         self.add_clause(block)
 
@@ -247,6 +306,9 @@ class CNF:
         """ 
         For an assignment a, blocks the partial assignment which is the 
         positive literals in a.
+
+        Args:
+            a: a (partial) assignment given as an iterable of literals.
         """
         block = []
         for lit in a:
@@ -256,15 +318,23 @@ class CNF:
             self.add_clause(block)
 
 
-    def solve(self, method=None):
-        """ Get 1 satisfying assignments it exists. """
+    def solve(self, method='classical'):
+        """
+        Gets 1 satisfying assignments if it exists.
+
+        Args:
+            method: a string in ['grover', 'classical']
+        """
         if method == 'grover':
             return self._solve_grover_qiskit()
-        else:
+        elif method == 'classical':
             return self._solve_glucose_3()
 
 
     def _solve_glucose_3(self):
+        """
+        Gets 1 satisfying asignment if it exists, using a classical SAT solver.
+        """
 
         # create initial formula
         g = Glucose3()
@@ -277,7 +347,9 @@ class CNF:
 
 
     def _solve_grover_qiskit(self, shots=100):
-        """ Find a satisfying assignment using Qiskit's Grover. """
+        """
+        Gets 1 satisfying assignment if it exists, using Qiskit's Grover. 
+        """
 
         expression, var_order = self.str_format_formula()
         oracle = PhaseOracle(expression) # oracle.data contains circuit info
@@ -301,6 +373,9 @@ class CNF:
 
 
     def _process_grover_result(self, result, var_order, n):
+        """
+        Helper to get relevant information from the measurement results.
+        """
 
         # sort measurements by frequency
         m = result.circuit_results[0]

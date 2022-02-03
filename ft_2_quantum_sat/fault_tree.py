@@ -21,12 +21,16 @@ class FaultTree:
 
 
     def set_top_event(self, name):
-        """ Sets the top event to the node with the given name """
+        """
+        Sets the top event to the node with the given name.
+        """
         self.top_event = name
 
 
     def add_basic_event(self, name, prob):
-        """ Adds a basic event with the given name and probability. """
+        """
+        Adds a basic event with the given name and probability.
+        """
         self.graph.add_node(name)
         self.basic_events.add(name)
         self.node_types[name] = 'input'
@@ -45,12 +49,16 @@ class FaultTree:
 
 
     def get_gate_inputs(self, gate_name):
-        """ Get the inputs of the given gate """
+        """
+        Get the inputs of the given gate.
+        """
         return self.graph.successors(gate_name)
 
 
     def to_cnf(self):
-        """ Converts the FT to a CNF expression """
+        """
+        Converts the FT to a CNF expression.
+        """
         f = cnf.CNF()
 
         # 1. assign var numbers to all the events (and gates)
@@ -81,7 +89,15 @@ class FaultTree:
 
 
     def compute_min_cutsets(self, m, method, cnf=None):
-        """ Computes the `m` smallest number of cutsets of this fault tree. """
+        """
+        Computes the `m` smallest number of cutsets of this fault tree.
+
+        Args:
+            m: The number of cutsets to compute.
+            method: String in ['grover', 'classical']
+            cnf: (Optional) If set, computes minimal cutsets for the given CNF
+              formula, instead of for self (mostly for debugging purposes).
+        """
 
         if cnf is None:
             f, _, input_vars = self.to_cnf()
@@ -118,9 +134,14 @@ class FaultTree:
         return cutsets
 
 
-    def load_from_xml(self, filepath):
+    @staticmethod
+    def load_from_xml(filepath):
+        """
+        Loads an FT from a given XML file in the Open-PSA Model Exchange Format.
+        """
+
         # 1. make sure all fields are empty
-        self.__init__()
+        ft = FaultTree()
 
         # 2. load xml
         xml = ElementTree.parse(filepath)
@@ -128,24 +149,31 @@ class FaultTree:
         # 3. get all basic events
         basic_events = xml.iter('define-basic-event')
         for e in basic_events:
-            self._parse_basic_event_xml(e)
+            ft._parse_basic_event_xml(e)
         
         # 4. get all gates
         gates = xml.iter('define-gate')
         for g in gates:
-            self._parse_gate_xml(g)
+            ft._parse_gate_xml(g)
         
         # 5. get top event
-        self._parse_top_event_xml(xml)
+        ft._parse_top_event_xml(xml)
+
+        return ft
 
 
     def _parse_basic_event_xml(self, xml_element):
+        """
+        Gets the relevant info from a <define-basic-event> XML element.
+        """
         # TODO: also parse prob
         self.add_basic_event(xml_element.attrib['name'], prob=0)
 
 
     def _parse_gate_xml(self, xml_element):
-        """ Gets the relevant info from <define-gate> xml element """
+        """
+        Gets the relevant info from <define-gate> xml element.
+        """
 
         # gate name
         name = xml_element.attrib['name']
@@ -164,7 +192,10 @@ class FaultTree:
         self.add_gate(name, gate_type, inputs)
 
     def _parse_top_event_xml(self, xml_element):
-        """ Assumes the first gate under <define-fault-tree> is top event """
+        """
+        Sets the top event of the fault tree, assuming the first gate under 
+        the <define-fault-tree> element is the top event.
+        """
         ft_defs = list(xml_element.iter('define-fault-tree'))
         assert len(ft_defs) == 1
         event_name = ft_defs[0].getchildren()[0].attrib['name']
@@ -172,7 +203,11 @@ class FaultTree:
 
 
     def save_as_image(self, output_file):
-        """ Saves the fault tree as image to the the given output file """
+        """
+        Saves the fault tree as image to the the given output file, using
+        graphviz and pydot.
+        """
+
         # split the nodes into and-gates, or-gates, and basic events
         and_nodes   = []
         or_nodes    = []

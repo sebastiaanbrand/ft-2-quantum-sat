@@ -1,6 +1,6 @@
-
-from numpy import add_newdoc_ufunc
 from ft_2_quantum_sat import cnf, fault_tree
+
+# TODO: split test files into test_cnf, test_fault_tree
 
 
 def test_new_vars():
