@@ -182,14 +182,14 @@ def test_ft_example_1():
 
     # cardinality constraint of 3 *over input vars only*
     car_cnf3 = car_cnf.copy()
-    car_cnf3.add_cardinality_constraint(3, variables=input_vars.values())
+    car_cnf3.add_cardinality_constraint(3, variables=input_vars)
     sat, assignment = car_cnf3.solve()
     assert sat == True
     assert var_mapping['car breaks'] in assignment
 
     # cardinality constraint of 2 *over input vars only*
     car_cnf2 = car_cnf.copy()
-    car_cnf2.add_cardinality_constraint(2, variables=input_vars.values())
+    car_cnf2.add_cardinality_constraint(2, variables=input_vars)
     sat, assignment = car_cnf2.solve()
     print(sat, assignment)
     assert sat == True
@@ -197,7 +197,7 @@ def test_ft_example_1():
 
     # cardinality constraint of 1 *over input vars only*
     car_cnf1 = car_cnf.copy()
-    car_cnf1.add_cardinality_constraint(1, variables=input_vars.values())
+    car_cnf1.add_cardinality_constraint(1, variables=input_vars)
     sat, assignment = car_cnf1.solve()
     print(sat, assignment)
     assert sat == True
@@ -229,21 +229,21 @@ def test_ft_example_2():
 
     # cardinality constraint of 3 *over input vars only*
     pc_cnf3 = pc_cnf.copy()
-    pc_cnf3.add_cardinality_constraint(3, variables=input_vars.values())
+    pc_cnf3.add_cardinality_constraint(3, variables=input_vars)
     sat, assignment = pc_cnf3.solve()
     assert sat == True
     assert var_mapping['pc fails'] in assignment
 
     # cardinality constraint of 2 *over input vars only*
     pc_cnf2 = pc_cnf.copy()
-    pc_cnf2.add_cardinality_constraint(2, variables=input_vars.values())
+    pc_cnf2.add_cardinality_constraint(2, variables=input_vars)
     sat, assignment = pc_cnf2.solve()
     assert sat == True
     assert var_mapping['pc fails'] in assignment
 
     # cardinality constraint of 1 *over input vars only*
     pc_cnf1 = pc_cnf.copy()
-    pc_cnf1.add_cardinality_constraint(1, variables=input_vars.values())
+    pc_cnf1.add_cardinality_constraint(1, variables=input_vars)
     sat, assignment = pc_cnf1.solve()
     assert sat == False
 

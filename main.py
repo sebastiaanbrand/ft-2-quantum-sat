@@ -6,7 +6,8 @@ if __name__ == '__main__':
     #ft = fault_tree.FaultTree()
     ft = fault_tree.FaultTree.load_from_xml("models/BSCU/BSCU.xml")
     ft.save_as_image('BSCU.pdf')
-    print(ft.top_event)
+    cutsets = ft.compute_min_cutsets(m=3, method='classical')
+    print("cutsets:", cutsets)
 
     #bscu_cnf, _, _ = ft.to_cnf()
     #sat, _ = bscu_cnf.solve()
@@ -19,6 +20,7 @@ if __name__ == '__main__':
     f.add_clause([1, 2, -3])
     f.add_clause([1, -2, -3])
     f.add_clause([-1, 2, 3])
+    f.var_names = {1 : 'x1', 2 : 'x2', 3 : 'x3'}
 
     print(f)
 

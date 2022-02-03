@@ -24,7 +24,7 @@ class CNF:
     def __init__(self):
         self.num_vars = 0
         self.clauses = set()
-        self.var_names = {}
+        self.var_names = {} # map: var_number -> var_name
 
 
     def __str__(self):
@@ -240,8 +240,30 @@ class CNF:
         card = CardEnc.atmost(variables, bound=at_most, top_id=self.num_vars)
         for clause in card.clauses:
             self.add_clause(clause)
-        
-    
+
+
+    def assignment_to_set(self, assignment):
+        """
+        Takes a list of assignments and returns a list of sets, where each set
+        is the set interpretation of each assignment.
+        """
+        res = set()
+        for lit in assignment:
+            if lit > 0:
+                res.add(self.var_names[lit])
+        return res
+
+
+    def assignments_to_sets(self, assignments):
+        """
+        Runs assigmnet_to_set() on every assignment in assignments.
+        """
+        res = []
+        for assignment in assignments:
+            res.append(self.assignment_to_set(assignment))
+        return res
+
+
     def _str_format_lit(self, lit):
         """
         Formats a literal as a string
@@ -253,7 +275,7 @@ class CNF:
         else:
             raise InvalidInput("Literal {} is invalid".format(lit))
 
-    
+
     def str_format_formula(self):
         """
         Formats the CNF formula as a string.

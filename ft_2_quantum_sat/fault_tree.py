@@ -62,10 +62,10 @@ class FaultTree:
         f = cnf.CNF()
 
         # 1. assign var numbers to all the events (and gates)
-        input_vars = {}
-        internal_vars = {}
+        input_vars = {}     # map : var_name -> var_number
+        internal_vars = {}  # map : var_name -> var_number
         for node in self.graph.nodes:
-            v = f.get_new_var()
+            v = f.get_new_var(name=node)
             if self.node_types[node] == 'input':
                 input_vars[node] = v
             else:
@@ -85,7 +85,7 @@ class FaultTree:
         # 3. add clause containing only the top event as (positive) literal
         f.add_clause([all_vars[self.top_event]])
 
-        return f, all_vars, input_vars
+        return f, all_vars, input_vars.values()
 
 
     def compute_min_cutsets(self, m, method, cnf=None):
@@ -97,6 +97,9 @@ class FaultTree:
             method: String in ['grover', 'classical']
             cnf: (Optional) If set, computes minimal cutsets for the given CNF
               formula, instead of for self (mostly for debugging purposes).
+        
+        Returns:
+            The cutsets as a list of CNF variables.
         """
 
         if cnf is None:
@@ -129,9 +132,9 @@ class FaultTree:
                 # add cutset and return if enough
                 cutsets.append(cutset)
                 if len(cutsets) == m:
-                    return cutsets
+                    return f.assignments_to_sets(cutsets)
 
-        return cutsets
+        return f.assignments_to_sets(cutsets)
 
 
     @staticmethod
