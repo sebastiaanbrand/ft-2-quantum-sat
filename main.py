@@ -5,7 +5,8 @@ if __name__ == '__main__':
     # parse from XML
     #ft = fault_tree.FaultTree()
     ft = fault_tree.FaultTree.load_from_xml("models/BSCU/BSCU.xml")
-    ft.save_as_image('BSCU.png')
+    ft.save_as_image('BSCU.pdf')
+    print(ft.top_event)
 
     #bscu_cnf, _, _ = ft.to_cnf()
     #sat, _ = bscu_cnf.solve()

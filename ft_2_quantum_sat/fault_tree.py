@@ -179,14 +179,14 @@ class FaultTree:
         name = xml_element.attrib['name']
 
         # gate type (or / and)
-        children = xml_element.getchildren()
+        children = list(xml_element)
         assert len(children) == 1
         gate = children[0]
         gate_type = gate.tag
 
         # gate inputs
         inputs = []
-        for i in gate.getchildren():
+        for i in gate: # (the xml element is enumerable)
             inputs.append(i.attrib['name'])
 
         self.add_gate(name, gate_type, inputs)
@@ -198,7 +198,7 @@ class FaultTree:
         """
         ft_defs = list(xml_element.iter('define-fault-tree'))
         assert len(ft_defs) == 1
-        event_name = ft_defs[0].getchildren()[0].attrib['name']
+        event_name = list(ft_defs[0])[0].attrib['name']
         self.set_top_event(event_name)
 
 

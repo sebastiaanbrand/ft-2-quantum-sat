@@ -246,3 +246,58 @@ def test_ft_example_2():
     pc_cnf1.add_cardinality_constraint(1, variables=input_vars.values())
     sat, assignment = pc_cnf1.solve()
     assert sat == False
+
+def test_parse_xml():
+    """
+    Test parsing of XML file on BSCU example.
+    """
+    ft = fault_tree.FaultTree.load_from_xml("models/BSCU/BSCU.xml")
+
+    # node count
+    assert ft.graph.number_of_nodes() == 15
+
+    # top event
+    assert ft.top_event == 'LossOfBrakingCommands'
+
+    # basic event
+    assert 'ValidityMonitorFailure' in ft.basic_events
+    assert 'SwitchStuckInIntermediatePosition' in ft.basic_events
+    assert 'SwitchStuckInPosition1' in ft.basic_events
+    assert 'SwitchStuckInPosition2' in ft.basic_events
+    assert 'System1ElectronicFailure' in ft.basic_events
+    assert 'System2ElectronicFailure' in ft.basic_events
+    assert 'LossOfSystem1PowerSupply' in ft.basic_events
+    assert 'LossOfSystem2PowerSupply' in ft.basic_events
+
+    # gates
+    assert ft.node_types['LossOfBrakingCommands'] == 'or'
+    assert ft.node_types['SwitchFailure'] == 'or'
+    assert ft.node_types['SwitchFailsInPosition1AndSystem1Fails'] == 'and'
+    assert ft.node_types['SwitchFailsInPosition2AndSystem2Fails'] == 'and'
+    assert ft.node_types['Systems1And2DoNotOperate'] == 'and'
+    assert ft.node_types['LossOfSystem1'] == 'or'
+    assert ft.node_types['LossOfSystem2'] == 'or'
+
+    # gate inputs
+    assert 'ValidityMonitorFailure' in ft.get_gate_inputs('LossOfBrakingCommands')
+    assert 'SwitchFailure' in ft.get_gate_inputs('LossOfBrakingCommands')
+    assert 'Systems1And2DoNotOperate' in ft.get_gate_inputs('LossOfBrakingCommands')
+
+    assert 'SwitchStuckInIntermediatePosition' in ft.get_gate_inputs('SwitchFailure')
+    assert 'SwitchFailsInPosition1AndSystem1Fails' in ft.get_gate_inputs('SwitchFailure')
+    assert 'SwitchFailsInPosition2AndSystem2Fails' in ft.get_gate_inputs('SwitchFailure')
+
+    assert 'LossOfSystem1' in ft.get_gate_inputs('Systems1And2DoNotOperate')
+    assert 'LossOfSystem2' in ft.get_gate_inputs('Systems1And2DoNotOperate')
+
+    assert 'System1ElectronicFailure' in ft.get_gate_inputs('LossOfSystem1')
+    assert 'LossOfSystem1PowerSupply' in ft.get_gate_inputs('LossOfSystem1')
+    
+    assert 'System2ElectronicFailure' in ft.get_gate_inputs('LossOfSystem2')
+    assert 'LossOfSystem2PowerSupply' in ft.get_gate_inputs('LossOfSystem2')
+
+    assert 'SwitchStuckInPosition1' in ft.get_gate_inputs('SwitchFailsInPosition1AndSystem1Fails')
+    assert 'LossOfSystem1' in ft.get_gate_inputs('SwitchFailsInPosition1AndSystem1Fails')
+
+    assert 'SwitchStuckInPosition2' in ft.get_gate_inputs('SwitchFailsInPosition2AndSystem2Fails')
+    assert 'LossOfSystem2' in ft.get_gate_inputs('SwitchFailsInPosition2AndSystem2Fails')
