@@ -1,4 +1,3 @@
-from black import InvalidInput
 from pysat.solvers import Glucose3
 from pysat.card import CardEnc
 
@@ -170,12 +169,12 @@ class CNF:
             The variable `output`.
         """
         if len(inputs) < 1:
-            raise InvalidInput("at least one input expected")
+            raise ValueError("at least one input expected")
         elif len(inputs) == 1:
             if (output is None):
                 return inputs[0]
             else:
-                raise InvalidInput("please don't add unnecessary identities")
+                raise ValueError("please don't add unnecessary identities")
         elif len(inputs) == 2:
             return self.add_tseitin_AND(inputs[0], inputs[1], output)
         else:
@@ -196,12 +195,12 @@ class CNF:
             The variable `output`.
         """
         if len(inputs) < 1:
-            raise InvalidInput("at least one input expected")
+            raise ValueError("at least one input expected")
         elif len(inputs) == 1:
             if (output is None):
                 return inputs[0]
             else:
-                raise InvalidInput("please don't add unnecessary identities")
+                raise ValueError("please don't add unnecessary identities")
         elif (len(inputs) == 2):
             return self.add_tseitin_OR(inputs[0], inputs[1], output)
         else:
@@ -226,7 +225,7 @@ class CNF:
         elif gate_type == 'or':
             return self.add_tseitin_multi_OR(inputs, output)
         else:
-            raise InvalidInput("Gate type '{}' currently not supported".format(gate_type))
+            raise ValueError("Gate type '{}' currently not supported".format(gate_type))
 
 
     def add_cardinality_constraint(self, at_most, variables=None):
@@ -273,7 +272,7 @@ class CNF:
         elif (lit < 0):
             return '~x{}'.format(abs(lit))
         else:
-            raise InvalidInput("Literal {} is invalid".format(lit))
+            raise ValueError("Literal {} is invalid".format(lit))
 
 
     def str_format_formula(self):
