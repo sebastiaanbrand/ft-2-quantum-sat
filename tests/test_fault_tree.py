@@ -1,4 +1,4 @@
-from ft_2_quantum_sat import fault_tree
+from ft_2_quantum_sat.fault_tree import FaultTree
 
 def test_ft_and():
     """
@@ -6,7 +6,7 @@ def test_ft_and():
     """
 
     # build fault tree
-    and_ft = fault_tree.FaultTree()
+    and_ft = FaultTree()
     and_ft.set_top_event('out')
     and_ft.add_basic_event('x1', 0.1)
     and_ft.add_basic_event('x2', 0.3)
@@ -27,7 +27,7 @@ def test_ft_or():
     """
 
     # build fault tree
-    or_ft = fault_tree.FaultTree()
+    or_ft = FaultTree()
     or_ft.set_top_event('out')
     or_ft.add_basic_event('x1', 0.1)
     or_ft.add_basic_event('x2', 0.3)
@@ -47,7 +47,7 @@ def test_ft_multi_and():
     """
 
     # build fault tree AND(x1, x2, x3)
-    and_3_ft = fault_tree.FaultTree()
+    and_3_ft = FaultTree()
     and_3_ft.set_top_event('out')
     and_3_ft.add_basic_event('x1', 0.1)
     and_3_ft.add_basic_event('x2', 0.3)
@@ -64,7 +64,7 @@ def test_ft_multi_and():
     assert var_mapping['out'] in assignment
 
     # build fault tree AND(x1, x2, x3, x4)
-    and_4_ft = fault_tree.FaultTree()
+    and_4_ft = FaultTree()
     and_4_ft.set_top_event('out')
     and_4_ft.add_basic_event('x1', 0.1)
     and_4_ft.add_basic_event('x2', 0.3)
@@ -83,7 +83,7 @@ def test_ft_multi_and():
     assert var_mapping['out'] in assignment
 
     # build fault tree AND(x1, x2, x3, x4, x5)
-    and_5_ft = fault_tree.FaultTree()
+    and_5_ft = FaultTree()
     and_5_ft.set_top_event('out')
     and_5_ft.add_basic_event('x1', 0.1)
     and_5_ft.add_basic_event('x2', 0.3)
@@ -110,7 +110,7 @@ def test_ft_multi_or():
     """
 
     # build fault tree OR(x1, x2, x3)
-    or_3_ft = fault_tree.FaultTree()
+    or_3_ft = FaultTree()
     or_3_ft.set_top_event('out')
     or_3_ft.add_basic_event('x1', 0.1)
     or_3_ft.add_basic_event('x2', 0.3)
@@ -125,7 +125,7 @@ def test_ft_multi_or():
     assert vm['out'] in a
 
     # build fault tree OR(x1, x2, x3, x4)
-    or_4_ft = fault_tree.FaultTree()
+    or_4_ft = FaultTree()
     or_4_ft.set_top_event('out')
     or_4_ft.add_basic_event('x1', 0.1)
     or_4_ft.add_basic_event('x2', 0.3)
@@ -142,7 +142,7 @@ def test_ft_multi_or():
     assert vm['out'] in a
 
     # build fault tree OR(x1, x2, x3, x4, x5)
-    or_5_ft = fault_tree.FaultTree()
+    or_5_ft = FaultTree()
     or_5_ft.set_top_event('out')
     or_5_ft.add_basic_event('x1', 0.1)
     or_5_ft.add_basic_event('x2', 0.3)
@@ -166,7 +166,7 @@ def test_ft_example_1():
     """
 
     # build simple fault tree
-    car_ft = fault_tree.FaultTree()
+    car_ft = FaultTree()
     car_ft.set_top_event('car breaks')
     car_ft.add_basic_event('engine breaks', 0.05)
     car_ft.add_basic_event('wheel breaks', 0.1)
@@ -205,6 +205,18 @@ def test_ft_example_1():
     assert sat == True
     assert var_mapping['car breaks'] in assignment
 
+    # there is one cutset of size 1, and one cutset of size 2, asking for m = 1 
+    # cutsets should only yield the smallest one of the two
+    cutsets = car_ft.compute_min_cutsets(m=1, method='classical')
+    assert len(cutsets) == 1
+    assert {'engine breaks'} in cutsets
+
+    # asking for more cutsets should yield both
+    cutsets = car_ft.compute_min_cutsets(m=5, method='classical')
+    assert len(cutsets) == 2
+    assert {'engine breaks'} in cutsets
+    assert {'wheel breaks', 'no spare'} in cutsets
+
 
 def test_ft_example_2():
     """
@@ -212,7 +224,7 @@ def test_ft_example_2():
     """
 
     # build simple fault tree
-    pc_ft = fault_tree.FaultTree()
+    pc_ft = FaultTree()
     pc_ft.set_top_event('pc fails')
     pc_ft.add_basic_event('high cpu load', 0.5)
     pc_ft.add_basic_event('fan breaks', 0.1)
@@ -250,12 +262,18 @@ def test_ft_example_2():
     sat, assignment = pc_cnf1.solve()
     assert sat == False
 
+    # there should only be two minimal cut sets (both of size 2)
+    cutsets = pc_ft.compute_min_cutsets(m=5, method='classical')
+    assert len(cutsets) == 2
+    assert {'power out', 'battery fail'} in cutsets
+    assert {'high cpu load', 'fan breaks'} in cutsets
+
 
 def test_parse_xml():
     """
     Test parsing of XML file on BSCU example.
     """
-    ft = fault_tree.FaultTree.load_from_xml("models/BSCU/BSCU.xml")
+    ft = FaultTree.load_from_xml("models/BSCU/BSCU.xml")
 
     # node count
     assert ft.graph.number_of_nodes() == 15
@@ -311,7 +329,7 @@ def test_cutsets_bscu():
     """
     Testing finding the minimal cutsets of the BSCU example.
     """
-    ft = fault_tree.FaultTree.load_from_xml("models/BSCU/BSCU.xml")
+    ft = FaultTree.load_from_xml("models/BSCU/BSCU.xml")
     
     # There are exactly two cutsets of size 1, so getting the m=2 smallest
     # cutsets should yield these two

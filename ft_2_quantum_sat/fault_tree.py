@@ -121,13 +121,11 @@ class FaultTree:
                     break
                 cutset = model[:len(input_vars)]
 
-                # block this cutset from current f_k and future f_k
-                # TODO: don't just block the entire model, instead only block
-                # the positive literals (i.e. the actual cutset)
-                # (only works for FTs, not random CNF formulas, since for an
-                # FT the 000...0 assignment is never satisfying
-                f_k.block(cutset)
-                f.block(cutset)
+                # Block this cutset from current f_k and future f_k.
+                # Only block the positive literals (i.e. the actual cutset),
+                # this makes sure that only *minimal* cut sets are computed.
+                f_k.block_positive_only(cutset)
+                f.block_positive_only(cutset)
 
                 # add cutset and return if enough
                 cutsets.append(cutset)

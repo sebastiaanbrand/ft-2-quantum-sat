@@ -339,7 +339,7 @@ class CNF:
             self.add_clause(block)
 
 
-    def solve(self, method='classical'):
+    def solve(self, method='classical', verbose=True):
         """
         Gets 1 satisfying assignments if it exists.
 
@@ -347,9 +347,11 @@ class CNF:
             method: a string in ['grover', 'classical']
         """
         if method == 'grover':
-            return self._solve_grover_qiskit()
+            return self._solve_grover_qiskit(verbose=verbose)
         elif method == 'classical':
             return self._solve_glucose_3()
+        else:
+            raise ValueError("Unknown method '{}'".format(method))
 
 
     def _solve_glucose_3(self):
@@ -367,7 +369,7 @@ class CNF:
         return sat, model
 
 
-    def _solve_grover_qiskit(self, shots=100):
+    def _solve_grover_qiskit(self, shots=100, verbose=True):
         """
         Gets 1 satisfying assignment if it exists, using Qiskit's Grover. 
         """
@@ -378,6 +380,9 @@ class CNF:
                                        is_good_state=oracle.evaluate_bitstring)
         backend = Aer.get_backend('aer_simulator')
         quantum_instance = QuantumInstance(backend, shots=shots)
+
+        if verbose:
+            print("Grover oracle requires {} qubits".format(oracle.num_qubits))
 
         # without specifying the number of iterations, the algorithm tries 
         # different number of iteratsion, and after each iteration checks if a 
