@@ -1,3 +1,7 @@
+"""
+Tests for the fault_tree module.
+"""
+
 from ft_2_quantum_sat.fault_tree import FaultTree
 
 def test_ft_and():
@@ -15,7 +19,7 @@ def test_ft_and():
     # convert to CNF and solve
     and_cnf, var_mapping, _ = and_ft.to_cnf()
     sat, assignment = and_cnf.solve()
-    assert sat == True
+    assert sat is True
     assert var_mapping['x1'] in assignment
     assert var_mapping['x2'] in assignment
     assert var_mapping['out'] in assignment
@@ -36,7 +40,7 @@ def test_ft_or():
     # convert to CNF and solve
     or_cnf, vm, _ = or_ft.to_cnf()
     sat, a = or_cnf.solve()
-    assert sat == True
+    assert sat is True
     assert vm['x1'] in a or vm['x2'] in a
     assert vm['out'] in a
 
@@ -57,7 +61,7 @@ def test_ft_multi_and():
     # convert to CNF and solve
     and_cnf, var_mapping, _ = and_3_ft.to_cnf()
     sat, assignment, = and_cnf.solve()
-    assert sat == True
+    assert sat is True
     assert var_mapping['x1'] in assignment
     assert var_mapping['x2'] in assignment
     assert var_mapping['x3'] in assignment
@@ -75,7 +79,7 @@ def test_ft_multi_and():
     # convert to CNF and solve
     and_cnf, var_mapping, _ = and_4_ft.to_cnf()
     sat, assignment, = and_cnf.solve()
-    assert sat == True
+    assert sat is True
     assert var_mapping['x1'] in assignment
     assert var_mapping['x2'] in assignment
     assert var_mapping['x3'] in assignment
@@ -95,7 +99,7 @@ def test_ft_multi_and():
     # convert to CNF and solve
     and_cnf, var_mapping, _ = and_5_ft.to_cnf()
     sat, assignment, = and_cnf.solve()
-    assert sat == True
+    assert sat is True
     assert var_mapping['x1'] in assignment
     assert var_mapping['x2'] in assignment
     assert var_mapping['x3'] in assignment
@@ -120,7 +124,7 @@ def test_ft_multi_or():
     # convert to CNF and solve
     or_cnf, vm, _ = or_3_ft.to_cnf()
     sat, a = or_cnf.solve()
-    assert sat == True
+    assert sat is True
     assert (vm['x1'] in a) or (vm['x2'] in a) or (vm['x3'] in a)
     assert vm['out'] in a
 
@@ -136,7 +140,7 @@ def test_ft_multi_or():
     # convert to CNF and solve
     or_cnf, vm, _ = or_4_ft.to_cnf()
     sat, a = or_cnf.solve()
-    assert sat == True
+    assert sat is True
     assert  (vm['x1'] in a) or (vm['x2'] in a) or \
             (vm['x3'] in a) or (vm['x4'] in a)
     assert vm['out'] in a
@@ -154,7 +158,7 @@ def test_ft_multi_or():
     # convert to CNF and solve
     or_cnf, vm, _ = or_5_ft.to_cnf()
     sat, a = or_cnf.solve()
-    assert sat == True
+    assert sat is True
     assert  (vm['x1'] in a) or (vm['x2'] in a) or \
             (vm['x3'] in a) or (vm['x4'] in a) or (vm['x5'] in a)
     assert vm['out'] in a
@@ -177,16 +181,16 @@ def test_ft_example_1():
     # convert to CNF
     car_cnf, var_mapping, input_vars = car_ft.to_cnf()
 
-    # solve without cardinality constraint 
+    # solve without cardinality constraint
     sat, assignment = car_cnf.solve()
-    assert sat == True
+    assert sat is True
     assert var_mapping['car breaks'] in assignment
 
     # cardinality constraint of 3 *over input vars only*
     car_cnf3 = car_cnf.copy()
     car_cnf3.add_cardinality_constraint(3, variables=input_vars)
     sat, assignment = car_cnf3.solve()
-    assert sat == True
+    assert sat is True
     assert var_mapping['car breaks'] in assignment
 
     # cardinality constraint of 2 *over input vars only*
@@ -194,7 +198,7 @@ def test_ft_example_1():
     car_cnf2.add_cardinality_constraint(2, variables=input_vars)
     sat, assignment = car_cnf2.solve()
     print(sat, assignment)
-    assert sat == True
+    assert sat is True
     assert var_mapping['car breaks'] in assignment
 
     # cardinality constraint of 1 *over input vars only*
@@ -202,10 +206,10 @@ def test_ft_example_1():
     car_cnf1.add_cardinality_constraint(1, variables=input_vars)
     sat, assignment = car_cnf1.solve()
     print(sat, assignment)
-    assert sat == True
+    assert sat is True
     assert var_mapping['car breaks'] in assignment
 
-    # there is one cutset of size 1, and one cutset of size 2, asking for m = 1 
+    # there is one cutset of size 1, and one cutset of size 2, asking for m = 1
     # cutsets should only yield the smallest one of the two
     cutsets = car_ft.compute_min_cutsets(m=1, method='classical')
     assert len(cutsets) == 1
@@ -237,30 +241,30 @@ def test_ft_example_2():
     # convert to CNF
     pc_cnf, var_mapping, input_vars = pc_ft.to_cnf()
 
-    # solve without cardinality constraint 
+    # solve without cardinality constraint
     sat, assignment = pc_cnf.solve()
-    assert sat == True
+    assert sat is True
     assert var_mapping['pc fails'] in assignment
 
     # cardinality constraint of 3 *over input vars only*
     pc_cnf3 = pc_cnf.copy()
     pc_cnf3.add_cardinality_constraint(3, variables=input_vars)
     sat, assignment = pc_cnf3.solve()
-    assert sat == True
+    assert sat is True
     assert var_mapping['pc fails'] in assignment
 
     # cardinality constraint of 2 *over input vars only*
     pc_cnf2 = pc_cnf.copy()
     pc_cnf2.add_cardinality_constraint(2, variables=input_vars)
     sat, assignment = pc_cnf2.solve()
-    assert sat == True
+    assert sat is True
     assert var_mapping['pc fails'] in assignment
 
     # cardinality constraint of 1 *over input vars only*
     pc_cnf1 = pc_cnf.copy()
     pc_cnf1.add_cardinality_constraint(1, variables=input_vars)
     sat, assignment = pc_cnf1.solve()
-    assert sat == False
+    assert sat is False
 
     # there should only be two minimal cut sets (both of size 2)
     cutsets = pc_ft.compute_min_cutsets(m=5, method='classical')
@@ -314,7 +318,7 @@ def test_parse_xml():
 
     assert 'System1ElectronicFailure' in ft.get_gate_inputs('LossOfSystem1')
     assert 'LossOfSystem1PowerSupply' in ft.get_gate_inputs('LossOfSystem1')
-    
+
     assert 'System2ElectronicFailure' in ft.get_gate_inputs('LossOfSystem2')
     assert 'LossOfSystem2PowerSupply' in ft.get_gate_inputs('LossOfSystem2')
 
@@ -330,7 +334,7 @@ def test_cutsets_bscu():
     Testing finding the minimal cutsets of the BSCU example.
     """
     ft = FaultTree.load_from_xml("models/BSCU/BSCU.xml")
-    
+
     # There are exactly two cutsets of size 1, so getting the m=2 smallest
     # cutsets should yield these two
     cutsets = ft.compute_min_cutsets(m=2, method='classical')

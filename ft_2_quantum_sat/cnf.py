@@ -1,3 +1,8 @@
+"""
+Definition of CNF class to hold some custom CNF functionality (the CNF class in
+pysat.formula doesn't quite do everyting we need).
+"""
+
 from pysat.solvers import Glucose3
 from pysat.card import CardEnc
 
@@ -5,20 +10,17 @@ from qiskit import Aer
 from qiskit.utils import QuantumInstance
 from qiskit.algorithms import Grover, AmplificationProblem
 from qiskit.circuit.library.phase_oracle import PhaseOracle
-from qiskit.tools.visualization import plot_histogram
 
 
 class CNF:
     """
-    CNF formula. Variables are given as positive integers. Positive (negative) 
+    CNF formula. Variables are given as positive integers. Positive (negative)
     literals are given by the positive (negative) integer corresponding to the
     variable number.
 
     Variables are assumed to be numbered consecutively starting from 1, i.e. if
     num_vars = 5, then the variables are [1, 2, 3, 4, 5].
     """
-
-    # TODO: rename this class to avoid clash with stuff in pysat
 
     def __init__(self):
         self.num_vars = 0
@@ -57,7 +59,7 @@ class CNF:
 
         Args:
             name: Some string to identify the variable
-        
+
         Returns:
             The new variable.
         """
@@ -90,12 +92,12 @@ class CNF:
         Args:
             var: The variable number to be added.
         """
-        if (abs(var) > self.num_vars + 1):
-            print('Variable {} cannot be added:'.format(var))
-            print('Current number of variables is {}'.format(self.num_vars))
-            print('New variable must be {}'.format(self.num_vars + 1))
-            exit(1)
-        if (abs(var) == self.num_vars + 1):
+        if abs(var) > self.num_vars + 1:
+            print(f'Variable {var} cannot be added:')
+            print(f'Current number of variables is {self.num_vars}, ', end='')
+            print(f'new variable must be {self.num_vars + 1}')
+            raise ValueError("Invalid variable number for new variable")
+        if abs(var) == self.num_vars + 1:
             self.num_vars += 1
 
 
@@ -113,7 +115,7 @@ class CNF:
         self.clauses.add(frozenset(clause))
 
 
-    def add_tseitin_AND(self, a, b, c=None):
+    def add_tseitin_and(self, a, b, c=-1):
         """
         Adds clauses such that c <==> a ^ b. If the variable `c` is not given,
         creates a new variable.
@@ -121,7 +123,7 @@ class CNF:
         Returns:
             The variable `c`.
         """
-        if (c is None):
+        if c == -1:
             c = self.get_new_var()
         self.add_clause([-a, -b, c])
         self.add_clause([a, -c])
@@ -129,7 +131,7 @@ class CNF:
         return c
 
 
-    def add_tseitin_OR(self, a, b, c=None):
+    def add_tseitin_or(self, a, b, c=-1):
         """
         Adds clauses such that c <==> a v b. If the variable `c` is not given,
         creates a new variable.
@@ -137,7 +139,7 @@ class CNF:
         Returns:
             The variable `c`.
         """
-        if (c is None):
+        if c == -1:
             c = self.get_new_var()
         self.add_clause([a, b, -c])
         self.add_clause([-a, c])
@@ -145,7 +147,7 @@ class CNF:
         return c
 
 
-    def add_tseitin_NOT(self, a, b=None):
+    def add_tseitin_not(self, a, b=-1):
         """
         Adds clauses such that b <==> ~a. If the variable `b` is not given,
         creates a new variable.
@@ -153,14 +155,14 @@ class CNF:
         Returns:
             The variable `c`.
         """
-        if (b is None):
+        if b == -1:
             b = self.get_new_var()
         self.add_clause([a, b])
         self.add_clause([-a, -b])
         return b
 
 
-    def add_tseitin_multi_AND(self, inputs, output=None):
+    def add_tseitin_multi_and(self, inputs, output=-1):
         """
         Adds clauses such that BIG_AND(inputs) <==> output. If the variable
         `output` is not given, creates a new variable.
@@ -171,22 +173,22 @@ class CNF:
         if len(inputs) < 1:
             raise ValueError("at least one input expected")
         elif len(inputs) == 1:
-            if (output is None):
+            if (output == -1):
                 return inputs[0]
             else:
                 raise ValueError("please don't add unnecessary identities")
         elif len(inputs) == 2:
-            return self.add_tseitin_AND(inputs[0], inputs[1], output)
+            return self.add_tseitin_and(inputs[0], inputs[1], output)
         else:
             # if more than 2 inputs: do AND of left and right
             l_inputs = inputs[:int(len(inputs)/2)]
             r_inputs = inputs[int(len(inputs)/2):]
-            l_output = self.add_tseitin_multi_AND(l_inputs)
-            r_output = self.add_tseitin_multi_AND(r_inputs)
-            return self.add_tseitin_AND(l_output, r_output, output)
+            l_output = self.add_tseitin_multi_and(l_inputs)
+            r_output = self.add_tseitin_multi_and(r_inputs)
+            return self.add_tseitin_and(l_output, r_output, output)
 
 
-    def add_tseitin_multi_OR(self, inputs, output=None):
+    def add_tseitin_multi_or(self, inputs, output=-1):
         """
         Adds clauses such that BIG_OR(inputs) <==> output. If the variable
         `output` is not given, creates a new variable.
@@ -197,19 +199,19 @@ class CNF:
         if len(inputs) < 1:
             raise ValueError("at least one input expected")
         elif len(inputs) == 1:
-            if (output is None):
+            if (output == -1):
                 return inputs[0]
             else:
                 raise ValueError("please don't add unnecessary identities")
         elif (len(inputs) == 2):
-            return self.add_tseitin_OR(inputs[0], inputs[1], output)
+            return self.add_tseitin_or(inputs[0], inputs[1], output)
         else:
             # if more than 2 inputs: do OR of left and right
             l_inputs = inputs[:int(len(inputs)/2)]
             r_inputs = inputs[int(len(inputs)/2):]
-            l_output = self.add_tseitin_multi_OR(l_inputs)
-            r_output = self.add_tseitin_multi_OR(r_inputs)
-            return self.add_tseitin_OR(l_output, r_output, output)
+            l_output = self.add_tseitin_multi_or(l_inputs)
+            r_output = self.add_tseitin_multi_or(r_inputs)
+            return self.add_tseitin_or(l_output, r_output, output)
 
 
     def add_tseitin_multi(self, gate_type, inputs, output):
@@ -221,16 +223,16 @@ class CNF:
             The variable `output`.
         """
         if gate_type == 'and':
-            return self.add_tseitin_multi_AND(inputs, output)
+            return self.add_tseitin_multi_and(inputs, output)
         elif gate_type == 'or':
-            return self.add_tseitin_multi_OR(inputs, output)
+            return self.add_tseitin_multi_or(inputs, output)
         else:
-            raise ValueError("Gate type '{}' currently not supported".format(gate_type))
+            raise ValueError(f"Gate type '{gate_type}' currently not supported")
 
 
     def add_cardinality_constraint(self, at_most, variables=None):
         """
-        Adds a cardinality constraint to the CNF formula. If `variables` is 
+        Adds a cardinality constraint to the CNF formula. If `variables` is
         given, the contraint is only over the given variables, otherwise it is
         over all variables.
         """
@@ -268,11 +270,11 @@ class CNF:
         Formats a literal as a string
         """
         if (lit > 0):
-            return 'x{}'.format(lit)
+            return f'x{lit}'
         elif (lit < 0):
-            return '~x{}'.format(abs(lit))
+            return f'~x{abs(lit)}'
         else:
-            raise ValueError("Literal {} is invalid".format(lit))
+            raise ValueError(f"Literal {lit} is invalid")
 
 
     def str_format_formula(self):
@@ -286,7 +288,7 @@ class CNF:
             cnf_str += '('
             for lit in clause:
                 cnf_str += self._str_format_lit(lit) + ' | '
-                if abs(lit) not in var_order.keys():
+                if abs(lit) not in var_order:
                     var_order[abs(lit)] = i
                     i += 1
             cnf_str = cnf_str[:-3] # remove last ' | '
@@ -307,7 +309,7 @@ class CNF:
                 if lit in assignment:
                     sat = True
                     break
-            if sat == False:
+            if sat is False:
                 return False
         return True
 
@@ -324,8 +326,8 @@ class CNF:
 
 
     def block_positive_only(self, a):
-        """ 
-        For an assignment a, blocks the partial assignment which is the 
+        """
+        For an assignment a, blocks the partial assignment which is the
         positive literals in a.
 
         Args:
@@ -351,7 +353,7 @@ class CNF:
         elif method == 'classical':
             return self._solve_glucose_3()
         else:
-            raise ValueError("Unknown method '{}'".format(method))
+            raise ValueError(f"Unknown method '{method}'")
 
 
     def _solve_glucose_3(self):
@@ -371,21 +373,21 @@ class CNF:
 
     def _solve_grover_qiskit(self, shots=100, verbose=True):
         """
-        Gets 1 satisfying assignment if it exists, using Qiskit's Grover. 
+        Gets 1 satisfying assignment if it exists, using Qiskit's Grover.
         """
 
         expression, var_order = self.str_format_formula()
         oracle = PhaseOracle(expression) # oracle.data contains circuit info
-        problem = AmplificationProblem(oracle, 
+        problem = AmplificationProblem(oracle,
                                        is_good_state=oracle.evaluate_bitstring)
         backend = Aer.get_backend('aer_simulator')
         quantum_instance = QuantumInstance(backend, shots=shots)
 
         if verbose:
-            print("Grover oracle requires {} qubits".format(oracle.num_qubits))
+            print(f"Grover oracle requires {oracle.num_qubits} qubits")
 
-        # without specifying the number of iterations, the algorithm tries 
-        # different number of iteratsion, and after each iteration checks if a 
+        # without specifying the number of iterations, the algorithm tries
+        # different number of iteratsion, and after each iteration checks if a
         # good state has been measured using good_state.
         grover = Grover(quantum_instance=quantum_instance)
         result = grover.amplify(problem)
@@ -417,14 +419,14 @@ class CNF:
             measurement = measurement[::-1] # reverse so that q0 is index 0
 
             # NOTE: the qubit numbers from PhaseOracle(expression) correspond
-            # to the order in which the variables apprear in `expression`. 
-            # Because of this, we keep track of the `var_order` in which the 
+            # to the order in which the variables apprear in `expression`.
+            # Because of this, we keep track of the `var_order` in which the
             # variables apprear in `expression` and need to do a bit of juggling
-            # while translating the measurement outcome to the assignment 
+            # while translating the measurement outcome to the assignment
             assignment = []
             for var in range(1, self.num_vars + 1):
                 bit = measurement[var_order[var]]
-                if (bit == '0'):
+                if bit == '0':
                     assignment.append(-var)
                 else:
                     assignment.append(var)

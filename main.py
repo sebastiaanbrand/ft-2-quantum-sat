@@ -1,9 +1,10 @@
-#from ft_2_quantum_sat import cnf, fault_tree
-from ft_2_quantum_sat.cnf import CNF
+"""
+Example usage of ft_2_quantum_sat.
+"""
+
 from ft_2_quantum_sat.fault_tree import FaultTree
 
 if __name__ == '__main__':
-    
     # parse from XML
     #ft = fault_tree.FaultTree()
     ft = FaultTree.load_from_xml("models/BSCU/BSCU.xml")

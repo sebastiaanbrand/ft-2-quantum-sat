@@ -1,4 +1,7 @@
-#from ft_2_quantum_sat import cnf
+"""
+Tests for the cnf module.
+"""
+
 from ft_2_quantum_sat.cnf import CNF
 
 def test_new_vars():
@@ -17,7 +20,7 @@ def test_new_vars():
     failed_to_add = False
     try:
         f.add_var(6)
-    except:
+    except ValueError:
         failed_to_add = True
     assert failed_to_add
 
@@ -39,7 +42,7 @@ def test_solve():
     f.add_clause([-2])
     f.add_clause([3, 2, -1])
     sat, assignment = f.solve()
-    assert sat == True
+    assert sat is True
     assert assignment == [1, -2, 3]
 
 
@@ -49,7 +52,7 @@ def test_solve():
     f.add_clause([-1,3])
     f.add_clause([-3, 2])
     sat, assignment = f.solve()
-    assert sat == False
+    assert sat is False
 
 
 def test_cardinality_constraint():
@@ -64,22 +67,22 @@ def test_cardinality_constraint():
     f.add_clause([-1, 2])
     f.add_clause([-1, 2, -3])
     sat, _ = f.solve()
-    assert sat == True
+    assert sat is True
 
     # constraint of 3 (should be satisfiable)
     f3 = f.copy()
     f3.add_cardinality_constraint(3)
     sat, _ = f3.solve()
-    assert sat == True
+    assert sat is True
 
     # constraint of 2 (should be satisfiable)
     f2 = f.copy()
     f2.add_cardinality_constraint(2)
     sat, _ = f2.solve()
-    assert sat == True
+    assert sat is True
 
     # constraint of 1 (should not be satisfiable)
     f1 = f.copy()
     f1.add_cardinality_constraint(1)
     sat, _ = f1.solve()
-    assert sat == False
+    assert sat is False

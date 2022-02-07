@@ -30,7 +30,8 @@ setup(
     license="European Union Public License 1.2",
 
     packages=find_packages(),
-    install_requires=["python-sat", "networkx", "qiskit"], # qiskit-aqua
+    install_requires=["matplotlib", "networkx", "pydot",
+                      "python-sat", "qiskit"],
     # Don't change these two lines
     tests_require=["pytest"],
     cmdclass={'test': PyTest},

@@ -99,10 +99,10 @@ method-rgx=[a-z_][a-z0-9_]{2,30}$
 attr-rgx=[a-z_][a-z0-9_]{1,30}$
 
 # Regular expression which should only match correct argument names
-argument-rgx=[a-z_][a-z0-9_]{1,30}$
+argument-rgx=[a-z_][a-z0-9_]{0,30}$ # allow single character argument names
 
 # Regular expression which should only match correct variable names
-variable-rgx=([a-z_][a-z0-9_]{1,30}$)|(_$)
+variable-rgx=([a-z_][a-z0-9_]{0,30}$)|(_$) # allow single character var names
 
 # Regular expression which should only match correct list comprehension /
 # generator expression variable names

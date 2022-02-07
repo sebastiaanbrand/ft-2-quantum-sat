@@ -1,14 +1,18 @@
-import networkx as nx
-import matplotlib.pyplot as plt
-from networkx.drawing.nx_pydot import graphviz_layout
-import xml.etree.ElementTree as ElementTree
+"""
+Definition of FaultTree class to hold all fault tree functionality.
+"""
 
-from ft_2_quantum_sat import cnf
+import xml.etree.ElementTree as ElementTree
+import matplotlib.pyplot as plt
+import networkx as nx
+from networkx.drawing.nx_pydot import graphviz_layout
+
+from ft_2_quantum_sat.cnf import CNF
 
 class FaultTree:
     """
     Note that a Fault Tree is not really a tree, it is a DAG. This class is
-    mostly just a wrapper around NetworkX's DiGraph keeping track of the 
+    mostly just a wrapper around NetworkX's DiGraph keeping track of the
     probabilities of basic events and the types of the gate nodes.
     """
 
@@ -38,8 +42,8 @@ class FaultTree:
 
 
     def add_gate(self, name, gate_type, inputs):
-        """ 
-        Adds a gate node to the fault tree, with type in {'and', 'or', ...}, 
+        """
+        Adds a gate node to the fault tree, with type in {'and', 'or', ...},
         and given inputs
         """
         self.graph.add_node(name)
@@ -59,7 +63,7 @@ class FaultTree:
         """
         Converts the FT to a CNF expression.
         """
-        f = cnf.CNF()
+        f = CNF()
 
         # 1. assign var numbers to all the events (and gates)
         input_vars = {}     # map : var_name -> var_number
@@ -72,7 +76,7 @@ class FaultTree:
                 internal_vars[node] = v
         all_vars = input_vars.copy()
         all_vars.update(internal_vars)
-        
+
         # 2. for every non-input node, add tseitin constraints to f
         for gate_name, output_var in internal_vars.items():
             input_names = self.get_gate_inputs(gate_name)
@@ -88,25 +92,25 @@ class FaultTree:
         return f, all_vars, input_vars.values()
 
 
-    def compute_min_cutsets(self, m, method, cnf=None):
+    def compute_min_cutsets(self, m, method, formula=None):
         """
         Computes the `m` smallest number of cutsets of this fault tree.
 
         Args:
             m: The number of cutsets to compute.
             method: String in ['grover', 'classical']
-            cnf: (Optional) If set, computes minimal cutsets for the given CNF
-              formula, instead of for self (mostly for debugging purposes).
-        
+            formula: (Optional) If set, computes minimal cutsets for the given
+              CNF formula, instead of for self (mostly for debugging purposes).
+
         Returns:
             The cutsets as a list of CNF variables.
         """
 
-        if cnf is None:
+        if formula is None:
             f, _, input_vars = self.to_cnf()
         else:
-            f = cnf.copy()
-            input_vars = cnf.get_vars()
+            f = formula.copy()
+            input_vars = formula.get_vars()
 
         k = 1
         cutsets = []
@@ -135,13 +139,13 @@ class FaultTree:
         return f.assignments_to_sets(cutsets)
 
 
-    @staticmethod
-    def load_from_xml(filepath):
+    @classmethod
+    def load_from_xml(cls, filepath):
         """
         Loads an FT from a given XML file in the Open-PSA Model Exchange Format.
         """
 
-        # 1. make sure all fields are empty
+        # 1. create new FaultTree
         ft = FaultTree()
 
         # 2. load xml
@@ -151,12 +155,12 @@ class FaultTree:
         basic_events = xml.iter('define-basic-event')
         for e in basic_events:
             ft._parse_basic_event_xml(e)
-        
+
         # 4. get all gates
         gates = xml.iter('define-gate')
         for g in gates:
             ft._parse_gate_xml(g)
-        
+
         # 5. get top event
         ft._parse_top_event_xml(xml)
 
@@ -166,8 +170,8 @@ class FaultTree:
     def _parse_basic_event_xml(self, xml_element):
         """
         Gets the relevant info from a <define-basic-event> XML element.
+        Currently only gets the event name, not the probability.
         """
-        # TODO: also parse prob
         self.add_basic_event(xml_element.attrib['name'], prob=0)
 
 
@@ -194,7 +198,7 @@ class FaultTree:
 
     def _parse_top_event_xml(self, xml_element):
         """
-        Sets the top event of the fault tree, assuming the first gate under 
+        Sets the top event of the fault tree, assuming the first gate under
         the <define-fault-tree> element is the top event.
         """
         ft_defs = list(xml_element.iter('define-fault-tree'))
@@ -220,7 +224,7 @@ class FaultTree:
                 and_nodes.append(node)
             elif self.node_types[node] == 'or':
                 or_nodes.append(node)
-        
+
         # draw the graph
         pos = graphviz_layout(self.graph, prog='dot')
         nx.draw_networkx_nodes(self.graph, pos, nodelist=and_nodes, node_shape='^')
@@ -230,7 +234,3 @@ class FaultTree:
         nx.draw_networkx_labels(self.graph, pos, font_size=6)
         plt.tight_layout()
         plt.savefig(output_file, dpi=300)
-    
-
-
-    
