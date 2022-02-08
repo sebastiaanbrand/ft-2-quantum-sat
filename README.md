@@ -26,7 +26,7 @@ $ sudo apt-get install graphviz
 
 ## Example usage
 
-The `example.py` file loads a number of fault trees from XML files in the Open-PSA Model Exchange Format. An example script is given below.
+The `example.py` file loads a number of fault trees from XML files in the Open-PSA Model Exchange Format and computes minimal cut sets. An example script is given below.
 
 ```python
 from ft_2_quantum_sat.fault_tree import FaultTree

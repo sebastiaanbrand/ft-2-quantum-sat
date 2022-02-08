@@ -1,5 +1,5 @@
 """
-Loads all the example fault trees which have the entire FT in a single file.
+Loads example fault trees which have the entire FT in a single file.
 """
 import os
 from pathlib import Path
@@ -35,8 +35,8 @@ def analyze_fault_tree(filepath, m=1, method='classical'):
 if __name__ == '__main__':
     Path(image_folder).mkdir(parents=True, exist_ok=True)
 
-    # analyze FTs (other FTs can't be loaded because they have e.g. this 
-    # <!-- Transfer-In --> thing
+    # Analyze FTs (not all FTs can be loaded because they have e.g. this 
+    # <!-- Transfer-In --> thing which the current parser doesn't deal with)
     analyze_fault_tree('models/Theatre/theatre.xml', m=2)
     analyze_fault_tree('models/Theatre/theatre.xml', m=2, method='grover')
     analyze_fault_tree('models/SmallTree/SmallTree.xml', m=2)
