@@ -37,11 +37,11 @@ ft = FaultTree.load_from_xml("models/Theatre/theatre.xml")
 # (if it is not too big) the fault tree can be visualized with
 ft.save_as_image('theatre.png')
 
-# compute the m=2 smallest cutsets with Grover
+# compute the m=2 smallest cut sets with Grover
 cutsets = ft.compute_min_cutsets(m=2, method='grover') 
-print("cutsets:", cutsets)
+print("cut sets:", cutsets)
 
-# alternatively, method='classical' uses classical SAT solver instead
+# alternatively, method='classical' uses a classical SAT solver instead
 ```
 
 
@@ -59,7 +59,7 @@ ft.add_basic_event('no spare', 0.3)
 ft.add_gate('car breaks', 'or', ['engine breaks', 'wheel issue'])
 ft.add_gate('wheel issue', 'and', ['wheel breaks', 'no spare'])
 
-# compute the m=2 smallest cutsets with Grover
+# compute the m=2 smallest cut sets with Grover
 cutsets = ft.compute_min_cutsets(m=2, method='grover') 
-print("cutsets:", cutsets)
+print("cut sets:", cutsets)
 ```
