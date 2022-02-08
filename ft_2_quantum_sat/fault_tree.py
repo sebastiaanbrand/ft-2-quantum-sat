@@ -22,6 +22,7 @@ class FaultTree:
         self.basic_events = set()
         self.probs = {} # event name -> prob
         self.node_types = {} # gate name -> {input, and, or, ...}
+        self._suported_gates = {'and', 'or'}
 
 
     def set_top_event(self, name):
@@ -57,6 +58,13 @@ class FaultTree:
         Get the inputs of the given gate.
         """
         return self.graph.successors(gate_name)
+
+
+    def number_of_nodes(self):
+        """
+        Returns the number of nodes in the fault tree.
+        """
+        return self.graph.number_of_nodes()
 
 
     def to_cnf(self):
@@ -185,9 +193,18 @@ class FaultTree:
 
         # gate type (or / and)
         children = list(xml_element)
-        assert len(children) == 1
-        gate = children[0]
-        gate_type = gate.tag
+        
+        gate = None
+        gate_type = ''
+        for child in children:
+            if child.tag == 'label': # there might be a <label> element
+                continue             # just skip these
+            else:
+                gate = child
+                gate_type = gate.tag
+
+        if gate_type not in self._suported_gates:
+            raise ValueError(f"Gate type '{gate_type}' currently not supported")
 
         # gate inputs
         inputs = []
@@ -234,3 +251,4 @@ class FaultTree:
         nx.draw_networkx_labels(self.graph, pos, font_size=6)
         plt.tight_layout()
         plt.savefig(output_file, dpi=300)
+        plt.clf()
