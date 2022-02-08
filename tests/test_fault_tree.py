@@ -329,9 +329,37 @@ def test_parse_xml():
     assert 'LossOfSystem2' in ft.get_gate_inputs('SwitchFailsInPosition2AndSystem2Fails')
 
 
+def test_cutsets_theatre():
+    """
+    Testing finding the minimal cut sets of the theatre example.
+    """
+    ft = FaultTree.load_from_xml("models/Theatre/theatre.xml")
+
+    # There are exactly two minimal cutsets, so if we ask for three we should 
+    # only get two.
+    cutsets = ft.compute_min_cutsets(m=3, method='classical')
+    assert len(cutsets) == 2
+    assert {'Mains_Fail', 'Gen_Fail'} in cutsets
+    assert {'Mains_Fail', 'Relay_Fail'} in cutsets
+
+
+def test_cutsets_smalltree():
+    """
+    Testing finding the minimal cut sets of the SmallTree example.
+    """
+    ft = FaultTree.load_from_xml("models/SmallTree/SmallTree.xml")
+
+    # There are exactly two minimal cutsets, so if we ask for three we should 
+    # only get two.
+    cutsets = ft.compute_min_cutsets(m=3, method='classical')
+    assert len(cutsets) == 2
+    assert {'e1', 'e2'} in cutsets
+    assert {'e3', 'e4'} in cutsets
+
+
 def test_cutsets_bscu():
     """
-    Testing finding the minimal cutsets of the BSCU example.
+    Testing finding the minimal cut sets of the BSCU example.
     """
     ft = FaultTree.load_from_xml("models/BSCU/BSCU.xml")
 
