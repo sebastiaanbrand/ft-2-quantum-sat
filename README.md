@@ -18,19 +18,48 @@ If [pytest](https://docs.pytest.org/en/6.2.x/getting-started.html) is installed 
 $ pytest
 ```
 
+To visualize the fault trees, [Graphviz](https://graphviz.org/) is used. This is _only_ required to visualize the fault trees, it is not necessary to install Graphviz to just compute the cut sets. Graphviz can be installed with:
+```bash
+$ sudo apt-get install graphviz
+```
+
 
 ## Example usage
+
+The `example.py` file loads a number of fault trees from XML files in the Open-PSA Model Exchange Format. An example script is given below.
 
 ```python
 from ft_2_quantum_sat.fault_tree import FaultTree
 
 # load a fault tree from XML
-ft = FaultTree.load_from_xml("models/BSCU/BSCU.xml")
+ft = FaultTree.load_from_xml("models/Theatre/theatre.xml")
 
 # (if it is not too big) the fault tree can be visualized with
-ft.save_as_image('BSCU.png')
+ft.save_as_image('theatre.png')
 
-# to compute for example the 3 smallest cutsets
-cutsets = ft.compute_min_cutsets(m=3, method='classical')
+# compute the m=2 smallest cutsets with Grover
+cutsets = ft.compute_min_cutsets(m=2, method='grover') 
+print("cutsets:", cutsets)
+
+# alternatively, method='classical' uses classical SAT solver instead
+```
+
+
+Fault trees can also be constructed from scratch, rather than loading an XML file.
+
+```python
+from ft_2_quantum_sat.fault_tree import FaultTree
+
+# build simple fault tree
+ft = FaultTree()
+ft.set_top_event('car breaks')
+ft.add_basic_event('engine breaks', 0.05) # (probabilities are currently ignored)
+ft.add_basic_event('wheel breaks', 0.1)
+ft.add_basic_event('no spare', 0.3)
+ft.add_gate('car breaks', 'or', ['engine breaks', 'wheel issue'])
+ft.add_gate('wheel issue', 'and', ['wheel breaks', 'no spare'])
+
+# compute the m=2 smallest cutsets with Grover
+cutsets = ft.compute_min_cutsets(m=2, method='grover') 
 print("cutsets:", cutsets)
 ```
