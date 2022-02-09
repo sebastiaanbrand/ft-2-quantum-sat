@@ -45,7 +45,6 @@ def test_solve():
     assert sat is True
     assert assignment == [1, -2, 3]
 
-
     f = CNF()
     f.add_clause([1, 2])
     f.add_clause([-2])

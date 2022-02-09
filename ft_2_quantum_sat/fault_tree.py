@@ -193,7 +193,7 @@ class FaultTree:
 
         # gate type (or / and)
         children = list(xml_element)
-        
+
         gate = None
         gate_type = ''
         for child in children:

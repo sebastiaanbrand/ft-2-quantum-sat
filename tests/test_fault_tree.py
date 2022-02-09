@@ -335,7 +335,7 @@ def test_cutsets_theatre():
     """
     ft = FaultTree.load_from_xml("models/Theatre/theatre.xml")
 
-    # There are exactly two minimal cutsets, so if we ask for three we should 
+    # There are exactly two minimal cutsets, so if we ask for three we should
     # only get two.
     cutsets = ft.compute_min_cutsets(m=3, method='classical')
     assert len(cutsets) == 2
@@ -349,7 +349,7 @@ def test_cutsets_smalltree():
     """
     ft = FaultTree.load_from_xml("models/SmallTree/SmallTree.xml")
 
-    # There are exactly two minimal cutsets, so if we ask for three we should 
+    # There are exactly two minimal cutsets, so if we ask for three we should
     # only get two.
     cutsets = ft.compute_min_cutsets(m=3, method='classical')
     assert len(cutsets) == 2

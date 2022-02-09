@@ -17,6 +17,9 @@ def image_name(filepath):
 
 
 def analyze_fault_tree(filepath, m=1, method='classical'):
+    """
+    Compute `m` cutsets from the given fault tree (as XML file).
+    """
 
     # load the fault tree
     print(f"Loading {filepath}... ", end='')
@@ -35,7 +38,7 @@ def analyze_fault_tree(filepath, m=1, method='classical'):
 if __name__ == '__main__':
     Path(image_folder).mkdir(parents=True, exist_ok=True)
 
-    # Analyze FTs (not all FTs can be loaded because they have e.g. this 
+    # Analyze FTs (not all FTs can be loaded because they have e.g. this
     # <!-- Transfer-In --> thing which the current parser doesn't deal with)
     analyze_fault_tree('models/Theatre/theatre.xml', m=2)
     analyze_fault_tree('models/Theatre/theatre.xml', m=2, method='grover')
