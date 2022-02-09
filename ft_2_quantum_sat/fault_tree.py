@@ -102,7 +102,7 @@ class FaultTree:
 
     def compute_min_cutsets(self, m, method, formula=None):
         """
-        Computes the `m` smallest number of cutsets of this fault tree.
+        Computes the `m` smallest cut sets of this fault tree.
 
         Args:
             m: The number of cutsets to compute.
@@ -111,7 +111,7 @@ class FaultTree:
               CNF formula, instead of for self (mostly for debugging purposes).
 
         Returns:
-            The cutsets as a list of CNF variables.
+            The cut set as a list of sets of basic event names.
         """
 
         if formula is None:
@@ -120,15 +120,17 @@ class FaultTree:
             f = formula.copy()
             input_vars = formula.get_vars()
 
-        k = 1
         cutsets = []
         for k in range(1, len(input_vars) + 1):
             f_k = f.copy()
-            f_k.add_cardinality_constraint(at_most=k, variables=input_vars)
+
+            # we don't need a cardinality constraint if we solve with min-sat
+            if method != 'min-sat':
+                f_k.add_cardinality_constraint(at_most=k, variables=input_vars)
 
             sat = True
             while len(cutsets) < m:
-                sat, model = f_k.solve(method=method)
+                sat, model = f_k.solve(method=method, minimize_vars=input_vars)
                 if not sat:
                     break
                 cutset = model[:len(input_vars)]

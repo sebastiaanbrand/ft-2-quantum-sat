@@ -45,3 +45,4 @@ if __name__ == '__main__':
     analyze_fault_tree('models/SmallTree/SmallTree.xml', m=2)
     analyze_fault_tree('models/BSCU/BSCU.xml', m=3)
     analyze_fault_tree('models/Lift/lift.xml', m=5)
+    analyze_fault_tree('models/Lift/lift.xml', m=5, method='min-sat')

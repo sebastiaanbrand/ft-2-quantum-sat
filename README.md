@@ -41,7 +41,7 @@ ft.save_as_image('theatre.png')
 cutsets = ft.compute_min_cutsets(m=2, method='grover') 
 print("cut sets:", cutsets)
 
-# alternatively, method='classical' uses a classical SAT solver instead
+# alternatively, method='classical' uses a classical SAT solver
 ```
 
 

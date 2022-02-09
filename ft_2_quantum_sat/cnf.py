@@ -5,6 +5,8 @@ pysat.formula doesn't quite do everyting we need).
 
 from pysat.solvers import Glucose3
 from pysat.card import CardEnc
+from pysat.examples.rc2 import RC2
+from pysat.formula import WCNF
 
 from qiskit import Aer
 from qiskit.utils import QuantumInstance
@@ -341,19 +343,80 @@ class CNF:
             self.add_clause(block)
 
 
-    def solve(self, method='classical', verbose=True):
+    def solve(self, method='classical', minimize_vars=None, verbose=True):
         """
         Gets 1 satisfying assignments if it exists.
 
         Args:
-            method: a string in ['grover', 'classical']
+            method: a string in ['grover', 'classical', 'min-sat']
         """
         if method == 'grover':
             return self._solve_grover_qiskit(verbose=verbose)
         elif method == 'classical':
             return self._solve_glucose_3()
+        elif method == 'min-sat':
+            return self._solve_min_sat(minimize_vars=minimize_vars)
         else:
             raise ValueError(f"Unknown method '{method}'")
+
+
+    def _to_weighted_formula(self, weight_map):
+        """
+        Returns a weighted CNF formula, with the hard clauses being the original
+        clauses of self, and the soft clauses the being variables variables in
+        `weight_map`.
+        """
+        weighted = WCNF()
+        # add every clause as a hard clause
+        for clause in self.clauses:
+            weighted.append(clause)
+
+        # for every variable in weight_map, add a soft clause
+        for var, weight in weight_map.items():
+            weighted.append([var], weight=weight)
+
+        return weighted
+
+
+    def _solve_max_sat(self, weight_map):
+        """
+        Gets 1 satisfying assignment if it exists, maximizing the sum of weights
+        of variables set to true.
+
+        NOTE: RC2 seems to give incorrect results when weight_map contains
+        negative weights.
+
+        Args:
+            weight_map: dictionary from (a subset of) variables to weights.
+        """
+        wcnf = self._to_weighted_formula(weight_map)
+        rc2 = RC2(wcnf)
+        model = rc2.compute()
+        if model is not None:
+            return True, model
+        else:
+            return False, model
+
+
+    def _solve_min_sat(self, minimize_vars=None):
+        """
+        Gets 1 satisfying assignment if it exists, which minimizes the number of
+        variables in `minimize_vars` set to True. If `minimize_vars` is not
+        given, minimizes over all variables.
+
+        Args:
+            minimize_vars: an iterable of variables (ints).
+        """
+
+        # NOTE: Because RC2 seems to have issues with negative weights, instead
+        # of (A) maximizing the sum of *negative* weights of *positive*
+        # literals, we (B) maximize the sum of *positive* weights of *negative*
+        # literals. I.e. we "reward" variables set to False, rather than
+        # "punish" variables set to True. This should yield the same result.
+        weight_map = {}
+        for var in minimize_vars:
+            weight_map[-var] = 1
+        return self._solve_max_sat(weight_map=weight_map)
 
 
     def _solve_glucose_3(self):

@@ -337,10 +337,11 @@ def test_cutsets_theatre():
 
     # There are exactly two minimal cutsets, so if we ask for three we should
     # only get two.
-    cutsets = ft.compute_min_cutsets(m=3, method='classical')
-    assert len(cutsets) == 2
-    assert {'Mains_Fail', 'Gen_Fail'} in cutsets
-    assert {'Mains_Fail', 'Relay_Fail'} in cutsets
+    for method in ['classical', 'min-sat']:
+        cutsets = ft.compute_min_cutsets(m=3, method=method)
+        assert len(cutsets) == 2
+        assert {'Mains_Fail', 'Gen_Fail'} in cutsets
+        assert {'Mains_Fail', 'Relay_Fail'} in cutsets
 
 
 def test_cutsets_smalltree():
@@ -351,10 +352,11 @@ def test_cutsets_smalltree():
 
     # There are exactly two minimal cutsets, so if we ask for three we should
     # only get two.
-    cutsets = ft.compute_min_cutsets(m=3, method='classical')
-    assert len(cutsets) == 2
-    assert {'e1', 'e2'} in cutsets
-    assert {'e3', 'e4'} in cutsets
+    for method in ['classical', 'min-sat']:
+        cutsets = ft.compute_min_cutsets(m=3, method=method)
+        assert len(cutsets) == 2
+        assert {'e1', 'e2'} in cutsets
+        assert {'e3', 'e4'} in cutsets
 
 
 def test_cutsets_bscu():
@@ -365,7 +367,8 @@ def test_cutsets_bscu():
 
     # There are exactly two cutsets of size 1, so getting the m=2 smallest
     # cutsets should yield these two
-    cutsets = ft.compute_min_cutsets(m=2, method='classical')
-    assert len(cutsets) == 2
-    assert {'ValidityMonitorFailure'} in cutsets
-    assert {'SwitchStuckInIntermediatePosition'} in cutsets
+    for method in ['classical', 'min-sat']:
+        cutsets = ft.compute_min_cutsets(m=2, method=method)
+        assert len(cutsets) == 2
+        assert {'ValidityMonitorFailure'} in cutsets
+        assert {'SwitchStuckInIntermediatePosition'} in cutsets
