@@ -417,6 +417,9 @@ class CNF:
         # literals, we (B) maximize the sum of *positive* weights of *negative*
         # literals. I.e. we "reward" variables set to False, rather than
         # "punish" variables set to True. This should yield the same result.
+        if minimize_vars is None:
+            minimize_vars = self.get_vars()
+
         weight_map = {}
         for var in minimize_vars:
             weight_map[-var] = 1
