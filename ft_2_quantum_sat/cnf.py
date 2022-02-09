@@ -247,8 +247,12 @@ class CNF:
 
     def assignment_to_set(self, assignment):
         """
-        Takes a list of assignments and returns a list of sets, where each set
-        is the set interpretation of each assignment.
+        Takes an assignments and returns a set containing the names of variables
+        set to True in the given assignment. E.g., if
+
+            self.var_names = {1 : 'x', : 2 : 'y', 3 : 'z'}
+
+        then the assignment [1, -2, 3] yields the set {'x', 'z'}.
         """
         res = set()
         for lit in assignment:
@@ -259,7 +263,7 @@ class CNF:
 
     def assignments_to_sets(self, assignments):
         """
-        Runs assigmnet_to_set() on every assignment in assignments.
+        Runs assignment_to_set() on every assignment in assignments.
         """
         res = []
         for assignment in assignments:
@@ -269,7 +273,7 @@ class CNF:
 
     def _str_format_lit(self, lit):
         """
-        Formats a literal as a string
+        Formats a literal as a string.
         """
         if (lit > 0):
             return f'x{lit}'

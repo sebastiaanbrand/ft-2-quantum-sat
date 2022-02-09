@@ -106,7 +106,7 @@ class FaultTree:
 
         Args:
             m: The number of cutsets to compute.
-            method: String in ['grover', 'classical']
+            method: String in ['grover', 'classical', 'min-sat']
             formula: (Optional) If set, computes minimal cutsets for the given
               CNF formula, instead of for self (mostly for debugging purposes).
 
