@@ -1,0 +1,1680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>ft_2_quantum_sat.cnf API documentation</title>
+<meta name="description" content="Definition of CNF class to hold some custom CNF functionality (the CNF class in
+pysat.formula doesn&#39;t quite do everyting we need)." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>ft_2_quantum_sat.cnf</code></h1>
+</header>
+<section id="section-intro">
+<p>Definition of CNF class to hold some custom CNF functionality (the CNF class in
+pysat.formula doesn't quite do everyting we need).</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Definition of CNF class to hold some custom CNF functionality (the CNF class in
+pysat.formula doesn&#39;t quite do everyting we need).
+&#34;&#34;&#34;
+
+from pysat.solvers import Glucose3
+from pysat.card import CardEnc
+from pysat.examples.rc2 import RC2
+from pysat.formula import WCNF
+
+from qiskit import Aer
+from qiskit.utils import QuantumInstance
+from qiskit.algorithms import Grover, AmplificationProblem
+from qiskit.circuit.library.phase_oracle import PhaseOracle
+
+
+class CNF:
+    &#34;&#34;&#34;
+    CNF formula. Variables are given as positive integers. Positive (negative)
+    literals are given by the positive (negative) integer corresponding to the
+    variable number.
+
+    Variables are assumed to be numbered consecutively starting from 1, i.e. if
+    num_vars = 5, then the variables are [1, 2, 3, 4, 5].
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.num_vars = 0
+        self.clauses = set()
+        self.var_names = {} # map: var_number -&gt; var_name
+
+
+    def __str__(self):
+        fields = {}
+        fields[&#39;clauses&#39;] = self.clauses.__str__()
+        fields[&#39;var_names&#39;] = self.var_names.__str__()
+        return fields.__str__()
+
+
+    def copy(self):
+        &#34;&#34;&#34;
+        Return a copy of self.
+        &#34;&#34;&#34;
+        f = CNF()
+        f.num_vars = self.num_vars
+        f.clauses = self.clauses.copy()
+        f.var_names = self.var_names.copy()
+        return f
+
+
+    def get_vars(self):
+        &#34;&#34;&#34;
+        Get all the variables as a list.
+        &#34;&#34;&#34;
+        return list(range(1, self.num_vars + 1))
+
+
+    def get_new_var(self, name=&#39;&#39;):
+        &#34;&#34;&#34;
+        Gets a new variable (integer) and sets its name to the given string.
+
+        Args:
+            name: Some string to identify the variable
+
+        Returns:
+            The new variable.
+        &#34;&#34;&#34;
+        self.num_vars += 1
+        self.var_names[self.num_vars] = name
+        return self.num_vars
+
+
+    def get_new_vars(self, n):
+        &#34;&#34;&#34;
+        Get `n` new variables.
+
+        Args:
+            n: The number of new variables
+
+        Returns:
+            The new variables as a list.
+        &#34;&#34;&#34;
+        new_vars = list(range(self.num_vars + 1, self.num_vars + n + 1))
+        self.num_vars += (n + 1)
+        return new_vars
+
+
+    def add_var(self, var):
+        &#34;&#34;&#34;
+        Adds the given variable to the the list of variables. Note that if there
+        are currently e.g. 5 variables, the only valid input to this function is
+        6.
+
+        Args:
+            var: The variable number to be added.
+        &#34;&#34;&#34;
+        if abs(var) &gt; self.num_vars + 1:
+            print(f&#39;Variable {var} cannot be added:&#39;)
+            print(f&#39;Current number of variables is {self.num_vars}, &#39;, end=&#39;&#39;)
+            print(f&#39;new variable must be {self.num_vars + 1}&#39;)
+            raise ValueError(&#34;Invalid variable number for new variable&#34;)
+        if abs(var) == self.num_vars + 1:
+            self.num_vars += 1
+
+
+    def add_clause(self, clause):
+        &#34;&#34;&#34;
+        Adds the given clause to the formula.
+
+        Args:
+            clause: The clause to be added as an iterable of literals.
+        &#34;&#34;&#34;
+        variables = [abs(lit) for lit in clause]
+        variables.sort()
+        for var in variables:
+            self.add_var(var)
+        self.clauses.add(frozenset(clause))
+
+
+    def add_tseitin_and(self, a, b, c=-1):
+        &#34;&#34;&#34;
+        Adds clauses such that c &lt;==&gt; a ^ b. If the variable `c` is not given,
+        creates a new variable.
+
+        Returns:
+            The variable `c`.
+        &#34;&#34;&#34;
+        if c == -1:
+            c = self.get_new_var()
+        self.add_clause([-a, -b, c])
+        self.add_clause([a, -c])
+        self.add_clause([b, -c])
+        return c
+
+
+    def add_tseitin_or(self, a, b, c=-1):
+        &#34;&#34;&#34;
+        Adds clauses such that c &lt;==&gt; a v b. If the variable `c` is not given,
+        creates a new variable.
+
+        Returns:
+            The variable `c`.
+        &#34;&#34;&#34;
+        if c == -1:
+            c = self.get_new_var()
+        self.add_clause([a, b, -c])
+        self.add_clause([-a, c])
+        self.add_clause([-b, c])
+        return c
+
+
+    def add_tseitin_not(self, a, b=-1):
+        &#34;&#34;&#34;
+        Adds clauses such that b &lt;==&gt; ~a. If the variable `b` is not given,
+        creates a new variable.
+
+        Returns:
+            The variable `c`.
+        &#34;&#34;&#34;
+        if b == -1:
+            b = self.get_new_var()
+        self.add_clause([a, b])
+        self.add_clause([-a, -b])
+        return b
+
+
+    def add_tseitin_multi_and(self, inputs, output=-1):
+        &#34;&#34;&#34;
+        Adds clauses such that BIG_AND(inputs) &lt;==&gt; output. If the variable
+        `output` is not given, creates a new variable.
+
+        Returns:
+            The variable `output`.
+        &#34;&#34;&#34;
+        if len(inputs) &lt; 1:
+            raise ValueError(&#34;at least one input expected&#34;)
+        elif len(inputs) == 1:
+            if (output == -1):
+                return inputs[0]
+            else:
+                raise ValueError(&#34;please don&#39;t add unnecessary identities&#34;)
+        elif len(inputs) == 2:
+            return self.add_tseitin_and(inputs[0], inputs[1], output)
+        else:
+            # if more than 2 inputs: do AND of left and right
+            l_inputs = inputs[:int(len(inputs)/2)]
+            r_inputs = inputs[int(len(inputs)/2):]
+            l_output = self.add_tseitin_multi_and(l_inputs)
+            r_output = self.add_tseitin_multi_and(r_inputs)
+            return self.add_tseitin_and(l_output, r_output, output)
+
+
+    def add_tseitin_multi_or(self, inputs, output=-1):
+        &#34;&#34;&#34;
+        Adds clauses such that BIG_OR(inputs) &lt;==&gt; output. If the variable
+        `output` is not given, creates a new variable.
+
+        Returns:
+            The variable `output`.
+        &#34;&#34;&#34;
+        if len(inputs) &lt; 1:
+            raise ValueError(&#34;at least one input expected&#34;)
+        elif len(inputs) == 1:
+            if (output == -1):
+                return inputs[0]
+            else:
+                raise ValueError(&#34;please don&#39;t add unnecessary identities&#34;)
+        elif (len(inputs) == 2):
+            return self.add_tseitin_or(inputs[0], inputs[1], output)
+        else:
+            # if more than 2 inputs: do OR of left and right
+            l_inputs = inputs[:int(len(inputs)/2)]
+            r_inputs = inputs[int(len(inputs)/2):]
+            l_output = self.add_tseitin_multi_or(l_inputs)
+            r_output = self.add_tseitin_multi_or(r_inputs)
+            return self.add_tseitin_or(l_output, r_output, output)
+
+
+    def add_tseitin_multi(self, gate_type, inputs, output):
+        &#34;&#34;&#34;
+        Adds clauses such that GATETYPE(inputs) &lt;==&gt; output. If the variable
+        `output` is not given, creates a new variable.
+
+        Returns:
+            The variable `output`.
+        &#34;&#34;&#34;
+        if gate_type == &#39;and&#39;:
+            return self.add_tseitin_multi_and(inputs, output)
+        elif gate_type == &#39;or&#39;:
+            return self.add_tseitin_multi_or(inputs, output)
+        else:
+            raise ValueError(f&#34;Gate type &#39;{gate_type}&#39; currently not supported&#34;)
+
+
+    def add_cardinality_constraint(self, at_most, variables=None):
+        &#34;&#34;&#34;
+        Adds a cardinality constraint to the CNF formula. If `variables` is
+        given, the contraint is only over the given variables, otherwise it is
+        over all variables.
+        &#34;&#34;&#34;
+        if variables is None:
+            variables = self.get_vars()
+        card = CardEnc.atmost(variables, bound=at_most, top_id=self.num_vars)
+        for clause in card.clauses:
+            self.add_clause(clause)
+
+
+    def assignment_to_set(self, assignment):
+        &#34;&#34;&#34;
+        Takes an assignments and returns a set containing the names of variables
+        set to True in the given assignment. E.g., if
+
+            self.var_names = {1 : &#39;x&#39;, : 2 : &#39;y&#39;, 3 : &#39;z&#39;}
+
+        then the assignment [1, -2, 3] yields the set {&#39;x&#39;, &#39;z&#39;}.
+        &#34;&#34;&#34;
+        res = set()
+        for lit in assignment:
+            if lit &gt; 0:
+                res.add(self.var_names[lit])
+        return res
+
+
+    def assignments_to_sets(self, assignments):
+        &#34;&#34;&#34;
+        Runs assignment_to_set() on every assignment in assignments.
+        &#34;&#34;&#34;
+        res = []
+        for assignment in assignments:
+            res.append(self.assignment_to_set(assignment))
+        return res
+
+
+    def _str_format_lit(self, lit):
+        &#34;&#34;&#34;
+        Formats a literal as a string.
+        &#34;&#34;&#34;
+        if (lit &gt; 0):
+            return f&#39;x{lit}&#39;
+        elif (lit &lt; 0):
+            return f&#39;~x{abs(lit)}&#39;
+        else:
+            raise ValueError(f&#34;Literal {lit} is invalid&#34;)
+
+
+    def str_format_formula(self):
+        &#34;&#34;&#34;
+        Formats the CNF formula as a string.
+        &#34;&#34;&#34;
+        var_order = {} # keep track of appearance order of vars in the string
+        i = 0
+        cnf_str = &#39;&#39;
+        for clause in self.clauses:
+            cnf_str += &#39;(&#39;
+            for lit in clause:
+                cnf_str += self._str_format_lit(lit) + &#39; | &#39;
+                if abs(lit) not in var_order:
+                    var_order[abs(lit)] = i
+                    i += 1
+            cnf_str = cnf_str[:-3] # remove last &#39; | &#39;
+            cnf_str += &#39;) &amp; &#39;
+        cnf_str = cnf_str[:-3] # remove last &#39; &amp; &#39;
+        return cnf_str, var_order
+
+
+    def is_satisfying(self, assignment):
+        &#34;&#34;&#34;
+        Checks if a given assignment is satisfying.
+        &#34;&#34;&#34;
+
+        # Every clause must contain at least one literal in the assignment
+        for clause in self.clauses:
+            sat = False
+            for lit in clause:
+                if lit in assignment:
+                    sat = True
+                    break
+            if sat is False:
+                return False
+        return True
+
+
+    def block(self, a):
+        &#34;&#34;&#34;
+        Block the given (partial) assignment.
+
+        Args:
+            a: a (partial) assignment given as an iterable of literals.
+        &#34;&#34;&#34;
+        block = [-lit for lit in a]
+        self.add_clause(block)
+
+
+    def block_positive_only(self, a):
+        &#34;&#34;&#34;
+        For an assignment a, blocks the partial assignment which is the
+        positive literals in a.
+
+        Args:
+            a: a (partial) assignment given as an iterable of literals.
+        &#34;&#34;&#34;
+        block = []
+        for lit in a:
+            if lit &gt; 0:
+                block.append(-lit)
+        if len(block) &gt; 0:
+            self.add_clause(block)
+
+
+    def solve(self, method=&#39;classical&#39;, minimize_vars=None, verbose=True):
+        &#34;&#34;&#34;
+        Gets 1 satisfying assignments if it exists.
+
+        Args:
+            method: a string in [&#39;grover&#39;, &#39;classical&#39;, &#39;min-sat&#39;]
+        &#34;&#34;&#34;
+        if method == &#39;grover&#39;:
+            return self._solve_grover_qiskit(verbose=verbose)
+        elif method == &#39;classical&#39;:
+            return self._solve_glucose_3()
+        elif method == &#39;min-sat&#39;:
+            return self._solve_min_sat(minimize_vars=minimize_vars)
+        else:
+            raise ValueError(f&#34;Unknown method &#39;{method}&#39;&#34;)
+
+
+    def _to_weighted_formula(self, weight_map):
+        &#34;&#34;&#34;
+        Returns a weighted CNF formula, with the hard clauses being the original
+        clauses of self, and the soft clauses the being variables variables in
+        `weight_map`.
+        &#34;&#34;&#34;
+        weighted = WCNF()
+        # add every clause as a hard clause
+        for clause in self.clauses:
+            weighted.append(clause)
+
+        # for every variable in weight_map, add a soft clause
+        for var, weight in weight_map.items():
+            weighted.append([var], weight=weight)
+
+        return weighted
+
+
+    def _solve_max_sat(self, weight_map):
+        &#34;&#34;&#34;
+        Gets 1 satisfying assignment if it exists, maximizing the sum of weights
+        of variables set to true.
+
+        NOTE: RC2 seems to give incorrect results when weight_map contains
+        negative weights.
+
+        Args:
+            weight_map: dictionary from (a subset of) variables to weights.
+        &#34;&#34;&#34;
+        wcnf = self._to_weighted_formula(weight_map)
+        rc2 = RC2(wcnf)
+        model = rc2.compute()
+        if model is not None:
+            return True, model
+        else:
+            return False, model
+
+
+    def _solve_min_sat(self, minimize_vars=None):
+        &#34;&#34;&#34;
+        Gets 1 satisfying assignment if it exists, which minimizes the number of
+        variables in `minimize_vars` set to True. If `minimize_vars` is not
+        given, minimizes over all variables.
+
+        Args:
+            minimize_vars: an iterable of variables (ints).
+        &#34;&#34;&#34;
+
+        # NOTE: Because RC2 seems to have issues with negative weights, instead
+        # of (A) maximizing the sum of *negative* weights of *positive*
+        # literals, we (B) maximize the sum of *positive* weights of *negative*
+        # literals. I.e. we &#34;reward&#34; variables set to False, rather than
+        # &#34;punish&#34; variables set to True. This should yield the same result.
+        if minimize_vars is None:
+            minimize_vars = self.get_vars()
+
+        weight_map = {}
+        for var in minimize_vars:
+            weight_map[-var] = 1
+        return self._solve_max_sat(weight_map=weight_map)
+
+
+    def _solve_glucose_3(self):
+        &#34;&#34;&#34;
+        Gets 1 satisfying asignment if it exists, using a classical SAT solver.
+        &#34;&#34;&#34;
+
+        # create initial formula
+        g = Glucose3()
+        for clause in self.clauses:
+            g.add_clause(list(clause))
+
+        sat = g.solve()
+        model = g.get_model()
+        return sat, model
+
+
+    def _solve_grover_qiskit(self, shots=100, verbose=True):
+        &#34;&#34;&#34;
+        Gets 1 satisfying assignment if it exists, using Qiskit&#39;s Grover.
+        &#34;&#34;&#34;
+
+        expression, var_order = self.str_format_formula()
+        oracle = PhaseOracle(expression) # oracle.data contains circuit info
+        problem = AmplificationProblem(oracle,
+                                       is_good_state=oracle.evaluate_bitstring)
+        backend = Aer.get_backend(&#39;aer_simulator&#39;)
+        quantum_instance = QuantumInstance(backend, shots=shots)
+
+        if verbose:
+            print(f&#34;Grover oracle requires {oracle.num_qubits} qubits&#34;)
+
+        # without specifying the number of iterations, the algorithm tries
+        # different number of iteratsion, and after each iteration checks if a
+        # good state has been measured using good_state.
+        grover = Grover(quantum_instance=quantum_instance)
+        result = grover.amplify(problem)
+
+        # get the top-1 most frequent result
+        assignments = self._process_grover_result(result, var_order, n=1)
+        if len(assignments) == 0:
+            return False, None
+        else:
+            return True, assignments[0]
+
+
+    def _process_grover_result(self, result, var_order, n):
+        &#34;&#34;&#34;
+        Helper to get relevant information from the measurement results.
+        &#34;&#34;&#34;
+
+        # sort measurements by frequency
+        m = result.circuit_results[0]
+        sorted_m = sorted(m.items(), key=lambda x: x[1], reverse=True)
+
+        # enumerate sorted measurements
+        res = []
+        done = False
+        found = 0
+        while (not done and found &lt; n):
+            # format assignment from bitstring to lits (e.g. 110 -&gt; [1,2,-3])
+            measurement, _ = sorted_m[found]
+            measurement = measurement[::-1] # reverse so that q0 is index 0
+
+            # NOTE: the qubit numbers from PhaseOracle(expression) correspond
+            # to the order in which the variables apprear in `expression`.
+            # Because of this, we keep track of the `var_order` in which the
+            # variables apprear in `expression` and need to do a bit of juggling
+            # while translating the measurement outcome to the assignment
+            assignment = []
+            for var in range(1, self.num_vars + 1):
+                bit = measurement[var_order[var]]
+                if bit == &#39;0&#39;:
+                    assignment.append(-var)
+                else:
+                    assignment.append(var)
+
+            # check if assignment is actually satisfying
+            sat = self.is_satisfying(assignment)
+            if sat:
+                found += 1
+                res.append(assignment)
+            else:
+                done = True
+
+        return res</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="ft_2_quantum_sat.cnf.CNF"><code class="flex name class">
+<span>class <span class="ident">CNF</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>CNF formula. Variables are given as positive integers. Positive (negative)
+literals are given by the positive (negative) integer corresponding to the
+variable number.</p>
+<p>Variables are assumed to be numbered consecutively starting from 1, i.e. if
+num_vars = 5, then the variables are [1, 2, 3, 4, 5].</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CNF:
+    &#34;&#34;&#34;
+    CNF formula. Variables are given as positive integers. Positive (negative)
+    literals are given by the positive (negative) integer corresponding to the
+    variable number.
+
+    Variables are assumed to be numbered consecutively starting from 1, i.e. if
+    num_vars = 5, then the variables are [1, 2, 3, 4, 5].
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.num_vars = 0
+        self.clauses = set()
+        self.var_names = {} # map: var_number -&gt; var_name
+
+
+    def __str__(self):
+        fields = {}
+        fields[&#39;clauses&#39;] = self.clauses.__str__()
+        fields[&#39;var_names&#39;] = self.var_names.__str__()
+        return fields.__str__()
+
+
+    def copy(self):
+        &#34;&#34;&#34;
+        Return a copy of self.
+        &#34;&#34;&#34;
+        f = CNF()
+        f.num_vars = self.num_vars
+        f.clauses = self.clauses.copy()
+        f.var_names = self.var_names.copy()
+        return f
+
+
+    def get_vars(self):
+        &#34;&#34;&#34;
+        Get all the variables as a list.
+        &#34;&#34;&#34;
+        return list(range(1, self.num_vars + 1))
+
+
+    def get_new_var(self, name=&#39;&#39;):
+        &#34;&#34;&#34;
+        Gets a new variable (integer) and sets its name to the given string.
+
+        Args:
+            name: Some string to identify the variable
+
+        Returns:
+            The new variable.
+        &#34;&#34;&#34;
+        self.num_vars += 1
+        self.var_names[self.num_vars] = name
+        return self.num_vars
+
+
+    def get_new_vars(self, n):
+        &#34;&#34;&#34;
+        Get `n` new variables.
+
+        Args:
+            n: The number of new variables
+
+        Returns:
+            The new variables as a list.
+        &#34;&#34;&#34;
+        new_vars = list(range(self.num_vars + 1, self.num_vars + n + 1))
+        self.num_vars += (n + 1)
+        return new_vars
+
+
+    def add_var(self, var):
+        &#34;&#34;&#34;
+        Adds the given variable to the the list of variables. Note that if there
+        are currently e.g. 5 variables, the only valid input to this function is
+        6.
+
+        Args:
+            var: The variable number to be added.
+        &#34;&#34;&#34;
+        if abs(var) &gt; self.num_vars + 1:
+            print(f&#39;Variable {var} cannot be added:&#39;)
+            print(f&#39;Current number of variables is {self.num_vars}, &#39;, end=&#39;&#39;)
+            print(f&#39;new variable must be {self.num_vars + 1}&#39;)
+            raise ValueError(&#34;Invalid variable number for new variable&#34;)
+        if abs(var) == self.num_vars + 1:
+            self.num_vars += 1
+
+
+    def add_clause(self, clause):
+        &#34;&#34;&#34;
+        Adds the given clause to the formula.
+
+        Args:
+            clause: The clause to be added as an iterable of literals.
+        &#34;&#34;&#34;
+        variables = [abs(lit) for lit in clause]
+        variables.sort()
+        for var in variables:
+            self.add_var(var)
+        self.clauses.add(frozenset(clause))
+
+
+    def add_tseitin_and(self, a, b, c=-1):
+        &#34;&#34;&#34;
+        Adds clauses such that c &lt;==&gt; a ^ b. If the variable `c` is not given,
+        creates a new variable.
+
+        Returns:
+            The variable `c`.
+        &#34;&#34;&#34;
+        if c == -1:
+            c = self.get_new_var()
+        self.add_clause([-a, -b, c])
+        self.add_clause([a, -c])
+        self.add_clause([b, -c])
+        return c
+
+
+    def add_tseitin_or(self, a, b, c=-1):
+        &#34;&#34;&#34;
+        Adds clauses such that c &lt;==&gt; a v b. If the variable `c` is not given,
+        creates a new variable.
+
+        Returns:
+            The variable `c`.
+        &#34;&#34;&#34;
+        if c == -1:
+            c = self.get_new_var()
+        self.add_clause([a, b, -c])
+        self.add_clause([-a, c])
+        self.add_clause([-b, c])
+        return c
+
+
+    def add_tseitin_not(self, a, b=-1):
+        &#34;&#34;&#34;
+        Adds clauses such that b &lt;==&gt; ~a. If the variable `b` is not given,
+        creates a new variable.
+
+        Returns:
+            The variable `c`.
+        &#34;&#34;&#34;
+        if b == -1:
+            b = self.get_new_var()
+        self.add_clause([a, b])
+        self.add_clause([-a, -b])
+        return b
+
+
+    def add_tseitin_multi_and(self, inputs, output=-1):
+        &#34;&#34;&#34;
+        Adds clauses such that BIG_AND(inputs) &lt;==&gt; output. If the variable
+        `output` is not given, creates a new variable.
+
+        Returns:
+            The variable `output`.
+        &#34;&#34;&#34;
+        if len(inputs) &lt; 1:
+            raise ValueError(&#34;at least one input expected&#34;)
+        elif len(inputs) == 1:
+            if (output == -1):
+                return inputs[0]
+            else:
+                raise ValueError(&#34;please don&#39;t add unnecessary identities&#34;)
+        elif len(inputs) == 2:
+            return self.add_tseitin_and(inputs[0], inputs[1], output)
+        else:
+            # if more than 2 inputs: do AND of left and right
+            l_inputs = inputs[:int(len(inputs)/2)]
+            r_inputs = inputs[int(len(inputs)/2):]
+            l_output = self.add_tseitin_multi_and(l_inputs)
+            r_output = self.add_tseitin_multi_and(r_inputs)
+            return self.add_tseitin_and(l_output, r_output, output)
+
+
+    def add_tseitin_multi_or(self, inputs, output=-1):
+        &#34;&#34;&#34;
+        Adds clauses such that BIG_OR(inputs) &lt;==&gt; output. If the variable
+        `output` is not given, creates a new variable.
+
+        Returns:
+            The variable `output`.
+        &#34;&#34;&#34;
+        if len(inputs) &lt; 1:
+            raise ValueError(&#34;at least one input expected&#34;)
+        elif len(inputs) == 1:
+            if (output == -1):
+                return inputs[0]
+            else:
+                raise ValueError(&#34;please don&#39;t add unnecessary identities&#34;)
+        elif (len(inputs) == 2):
+            return self.add_tseitin_or(inputs[0], inputs[1], output)
+        else:
+            # if more than 2 inputs: do OR of left and right
+            l_inputs = inputs[:int(len(inputs)/2)]
+            r_inputs = inputs[int(len(inputs)/2):]
+            l_output = self.add_tseitin_multi_or(l_inputs)
+            r_output = self.add_tseitin_multi_or(r_inputs)
+            return self.add_tseitin_or(l_output, r_output, output)
+
+
+    def add_tseitin_multi(self, gate_type, inputs, output):
+        &#34;&#34;&#34;
+        Adds clauses such that GATETYPE(inputs) &lt;==&gt; output. If the variable
+        `output` is not given, creates a new variable.
+
+        Returns:
+            The variable `output`.
+        &#34;&#34;&#34;
+        if gate_type == &#39;and&#39;:
+            return self.add_tseitin_multi_and(inputs, output)
+        elif gate_type == &#39;or&#39;:
+            return self.add_tseitin_multi_or(inputs, output)
+        else:
+            raise ValueError(f&#34;Gate type &#39;{gate_type}&#39; currently not supported&#34;)
+
+
+    def add_cardinality_constraint(self, at_most, variables=None):
+        &#34;&#34;&#34;
+        Adds a cardinality constraint to the CNF formula. If `variables` is
+        given, the contraint is only over the given variables, otherwise it is
+        over all variables.
+        &#34;&#34;&#34;
+        if variables is None:
+            variables = self.get_vars()
+        card = CardEnc.atmost(variables, bound=at_most, top_id=self.num_vars)
+        for clause in card.clauses:
+            self.add_clause(clause)
+
+
+    def assignment_to_set(self, assignment):
+        &#34;&#34;&#34;
+        Takes an assignments and returns a set containing the names of variables
+        set to True in the given assignment. E.g., if
+
+            self.var_names = {1 : &#39;x&#39;, : 2 : &#39;y&#39;, 3 : &#39;z&#39;}
+
+        then the assignment [1, -2, 3] yields the set {&#39;x&#39;, &#39;z&#39;}.
+        &#34;&#34;&#34;
+        res = set()
+        for lit in assignment:
+            if lit &gt; 0:
+                res.add(self.var_names[lit])
+        return res
+
+
+    def assignments_to_sets(self, assignments):
+        &#34;&#34;&#34;
+        Runs assignment_to_set() on every assignment in assignments.
+        &#34;&#34;&#34;
+        res = []
+        for assignment in assignments:
+            res.append(self.assignment_to_set(assignment))
+        return res
+
+
+    def _str_format_lit(self, lit):
+        &#34;&#34;&#34;
+        Formats a literal as a string.
+        &#34;&#34;&#34;
+        if (lit &gt; 0):
+            return f&#39;x{lit}&#39;
+        elif (lit &lt; 0):
+            return f&#39;~x{abs(lit)}&#39;
+        else:
+            raise ValueError(f&#34;Literal {lit} is invalid&#34;)
+
+
+    def str_format_formula(self):
+        &#34;&#34;&#34;
+        Formats the CNF formula as a string.
+        &#34;&#34;&#34;
+        var_order = {} # keep track of appearance order of vars in the string
+        i = 0
+        cnf_str = &#39;&#39;
+        for clause in self.clauses:
+            cnf_str += &#39;(&#39;
+            for lit in clause:
+                cnf_str += self._str_format_lit(lit) + &#39; | &#39;
+                if abs(lit) not in var_order:
+                    var_order[abs(lit)] = i
+                    i += 1
+            cnf_str = cnf_str[:-3] # remove last &#39; | &#39;
+            cnf_str += &#39;) &amp; &#39;
+        cnf_str = cnf_str[:-3] # remove last &#39; &amp; &#39;
+        return cnf_str, var_order
+
+
+    def is_satisfying(self, assignment):
+        &#34;&#34;&#34;
+        Checks if a given assignment is satisfying.
+        &#34;&#34;&#34;
+
+        # Every clause must contain at least one literal in the assignment
+        for clause in self.clauses:
+            sat = False
+            for lit in clause:
+                if lit in assignment:
+                    sat = True
+                    break
+            if sat is False:
+                return False
+        return True
+
+
+    def block(self, a):
+        &#34;&#34;&#34;
+        Block the given (partial) assignment.
+
+        Args:
+            a: a (partial) assignment given as an iterable of literals.
+        &#34;&#34;&#34;
+        block = [-lit for lit in a]
+        self.add_clause(block)
+
+
+    def block_positive_only(self, a):
+        &#34;&#34;&#34;
+        For an assignment a, blocks the partial assignment which is the
+        positive literals in a.
+
+        Args:
+            a: a (partial) assignment given as an iterable of literals.
+        &#34;&#34;&#34;
+        block = []
+        for lit in a:
+            if lit &gt; 0:
+                block.append(-lit)
+        if len(block) &gt; 0:
+            self.add_clause(block)
+
+
+    def solve(self, method=&#39;classical&#39;, minimize_vars=None, verbose=True):
+        &#34;&#34;&#34;
+        Gets 1 satisfying assignments if it exists.
+
+        Args:
+            method: a string in [&#39;grover&#39;, &#39;classical&#39;, &#39;min-sat&#39;]
+        &#34;&#34;&#34;
+        if method == &#39;grover&#39;:
+            return self._solve_grover_qiskit(verbose=verbose)
+        elif method == &#39;classical&#39;:
+            return self._solve_glucose_3()
+        elif method == &#39;min-sat&#39;:
+            return self._solve_min_sat(minimize_vars=minimize_vars)
+        else:
+            raise ValueError(f&#34;Unknown method &#39;{method}&#39;&#34;)
+
+
+    def _to_weighted_formula(self, weight_map):
+        &#34;&#34;&#34;
+        Returns a weighted CNF formula, with the hard clauses being the original
+        clauses of self, and the soft clauses the being variables variables in
+        `weight_map`.
+        &#34;&#34;&#34;
+        weighted = WCNF()
+        # add every clause as a hard clause
+        for clause in self.clauses:
+            weighted.append(clause)
+
+        # for every variable in weight_map, add a soft clause
+        for var, weight in weight_map.items():
+            weighted.append([var], weight=weight)
+
+        return weighted
+
+
+    def _solve_max_sat(self, weight_map):
+        &#34;&#34;&#34;
+        Gets 1 satisfying assignment if it exists, maximizing the sum of weights
+        of variables set to true.
+
+        NOTE: RC2 seems to give incorrect results when weight_map contains
+        negative weights.
+
+        Args:
+            weight_map: dictionary from (a subset of) variables to weights.
+        &#34;&#34;&#34;
+        wcnf = self._to_weighted_formula(weight_map)
+        rc2 = RC2(wcnf)
+        model = rc2.compute()
+        if model is not None:
+            return True, model
+        else:
+            return False, model
+
+
+    def _solve_min_sat(self, minimize_vars=None):
+        &#34;&#34;&#34;
+        Gets 1 satisfying assignment if it exists, which minimizes the number of
+        variables in `minimize_vars` set to True. If `minimize_vars` is not
+        given, minimizes over all variables.
+
+        Args:
+            minimize_vars: an iterable of variables (ints).
+        &#34;&#34;&#34;
+
+        # NOTE: Because RC2 seems to have issues with negative weights, instead
+        # of (A) maximizing the sum of *negative* weights of *positive*
+        # literals, we (B) maximize the sum of *positive* weights of *negative*
+        # literals. I.e. we &#34;reward&#34; variables set to False, rather than
+        # &#34;punish&#34; variables set to True. This should yield the same result.
+        if minimize_vars is None:
+            minimize_vars = self.get_vars()
+
+        weight_map = {}
+        for var in minimize_vars:
+            weight_map[-var] = 1
+        return self._solve_max_sat(weight_map=weight_map)
+
+
+    def _solve_glucose_3(self):
+        &#34;&#34;&#34;
+        Gets 1 satisfying asignment if it exists, using a classical SAT solver.
+        &#34;&#34;&#34;
+
+        # create initial formula
+        g = Glucose3()
+        for clause in self.clauses:
+            g.add_clause(list(clause))
+
+        sat = g.solve()
+        model = g.get_model()
+        return sat, model
+
+
+    def _solve_grover_qiskit(self, shots=100, verbose=True):
+        &#34;&#34;&#34;
+        Gets 1 satisfying assignment if it exists, using Qiskit&#39;s Grover.
+        &#34;&#34;&#34;
+
+        expression, var_order = self.str_format_formula()
+        oracle = PhaseOracle(expression) # oracle.data contains circuit info
+        problem = AmplificationProblem(oracle,
+                                       is_good_state=oracle.evaluate_bitstring)
+        backend = Aer.get_backend(&#39;aer_simulator&#39;)
+        quantum_instance = QuantumInstance(backend, shots=shots)
+
+        if verbose:
+            print(f&#34;Grover oracle requires {oracle.num_qubits} qubits&#34;)
+
+        # without specifying the number of iterations, the algorithm tries
+        # different number of iteratsion, and after each iteration checks if a
+        # good state has been measured using good_state.
+        grover = Grover(quantum_instance=quantum_instance)
+        result = grover.amplify(problem)
+
+        # get the top-1 most frequent result
+        assignments = self._process_grover_result(result, var_order, n=1)
+        if len(assignments) == 0:
+            return False, None
+        else:
+            return True, assignments[0]
+
+
+    def _process_grover_result(self, result, var_order, n):
+        &#34;&#34;&#34;
+        Helper to get relevant information from the measurement results.
+        &#34;&#34;&#34;
+
+        # sort measurements by frequency
+        m = result.circuit_results[0]
+        sorted_m = sorted(m.items(), key=lambda x: x[1], reverse=True)
+
+        # enumerate sorted measurements
+        res = []
+        done = False
+        found = 0
+        while (not done and found &lt; n):
+            # format assignment from bitstring to lits (e.g. 110 -&gt; [1,2,-3])
+            measurement, _ = sorted_m[found]
+            measurement = measurement[::-1] # reverse so that q0 is index 0
+
+            # NOTE: the qubit numbers from PhaseOracle(expression) correspond
+            # to the order in which the variables apprear in `expression`.
+            # Because of this, we keep track of the `var_order` in which the
+            # variables apprear in `expression` and need to do a bit of juggling
+            # while translating the measurement outcome to the assignment
+            assignment = []
+            for var in range(1, self.num_vars + 1):
+                bit = measurement[var_order[var]]
+                if bit == &#39;0&#39;:
+                    assignment.append(-var)
+                else:
+                    assignment.append(var)
+
+            # check if assignment is actually satisfying
+            sat = self.is_satisfying(assignment)
+            if sat:
+                found += 1
+                res.append(assignment)
+            else:
+                done = True
+
+        return res</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="ft_2_quantum_sat.cnf.CNF.add_cardinality_constraint"><code class="name flex">
+<span>def <span class="ident">add_cardinality_constraint</span></span>(<span>self, at_most, variables=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds a cardinality constraint to the CNF formula. If <code>variables</code> is
+given, the contraint is only over the given variables, otherwise it is
+over all variables.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_cardinality_constraint(self, at_most, variables=None):
+    &#34;&#34;&#34;
+    Adds a cardinality constraint to the CNF formula. If `variables` is
+    given, the contraint is only over the given variables, otherwise it is
+    over all variables.
+    &#34;&#34;&#34;
+    if variables is None:
+        variables = self.get_vars()
+    card = CardEnc.atmost(variables, bound=at_most, top_id=self.num_vars)
+    for clause in card.clauses:
+        self.add_clause(clause)</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.add_clause"><code class="name flex">
+<span>def <span class="ident">add_clause</span></span>(<span>self, clause)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds the given clause to the formula.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>clause</code></strong></dt>
+<dd>The clause to be added as an iterable of literals.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_clause(self, clause):
+    &#34;&#34;&#34;
+    Adds the given clause to the formula.
+
+    Args:
+        clause: The clause to be added as an iterable of literals.
+    &#34;&#34;&#34;
+    variables = [abs(lit) for lit in clause]
+    variables.sort()
+    for var in variables:
+        self.add_var(var)
+    self.clauses.add(frozenset(clause))</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.add_tseitin_and"><code class="name flex">
+<span>def <span class="ident">add_tseitin_and</span></span>(<span>self, a, b, c=-1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds clauses such that c &lt;==&gt; a ^ b. If the variable <code>c</code> is not given,
+creates a new variable.</p>
+<h2 id="returns">Returns</h2>
+<p>The variable <code>c</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_tseitin_and(self, a, b, c=-1):
+    &#34;&#34;&#34;
+    Adds clauses such that c &lt;==&gt; a ^ b. If the variable `c` is not given,
+    creates a new variable.
+
+    Returns:
+        The variable `c`.
+    &#34;&#34;&#34;
+    if c == -1:
+        c = self.get_new_var()
+    self.add_clause([-a, -b, c])
+    self.add_clause([a, -c])
+    self.add_clause([b, -c])
+    return c</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.add_tseitin_multi"><code class="name flex">
+<span>def <span class="ident">add_tseitin_multi</span></span>(<span>self, gate_type, inputs, output)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds clauses such that GATETYPE(inputs) &lt;==&gt; output. If the variable
+<code>output</code> is not given, creates a new variable.</p>
+<h2 id="returns">Returns</h2>
+<p>The variable <code>output</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_tseitin_multi(self, gate_type, inputs, output):
+    &#34;&#34;&#34;
+    Adds clauses such that GATETYPE(inputs) &lt;==&gt; output. If the variable
+    `output` is not given, creates a new variable.
+
+    Returns:
+        The variable `output`.
+    &#34;&#34;&#34;
+    if gate_type == &#39;and&#39;:
+        return self.add_tseitin_multi_and(inputs, output)
+    elif gate_type == &#39;or&#39;:
+        return self.add_tseitin_multi_or(inputs, output)
+    else:
+        raise ValueError(f&#34;Gate type &#39;{gate_type}&#39; currently not supported&#34;)</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.add_tseitin_multi_and"><code class="name flex">
+<span>def <span class="ident">add_tseitin_multi_and</span></span>(<span>self, inputs, output=-1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds clauses such that BIG_AND(inputs) &lt;==&gt; output. If the variable
+<code>output</code> is not given, creates a new variable.</p>
+<h2 id="returns">Returns</h2>
+<p>The variable <code>output</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_tseitin_multi_and(self, inputs, output=-1):
+    &#34;&#34;&#34;
+    Adds clauses such that BIG_AND(inputs) &lt;==&gt; output. If the variable
+    `output` is not given, creates a new variable.
+
+    Returns:
+        The variable `output`.
+    &#34;&#34;&#34;
+    if len(inputs) &lt; 1:
+        raise ValueError(&#34;at least one input expected&#34;)
+    elif len(inputs) == 1:
+        if (output == -1):
+            return inputs[0]
+        else:
+            raise ValueError(&#34;please don&#39;t add unnecessary identities&#34;)
+    elif len(inputs) == 2:
+        return self.add_tseitin_and(inputs[0], inputs[1], output)
+    else:
+        # if more than 2 inputs: do AND of left and right
+        l_inputs = inputs[:int(len(inputs)/2)]
+        r_inputs = inputs[int(len(inputs)/2):]
+        l_output = self.add_tseitin_multi_and(l_inputs)
+        r_output = self.add_tseitin_multi_and(r_inputs)
+        return self.add_tseitin_and(l_output, r_output, output)</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.add_tseitin_multi_or"><code class="name flex">
+<span>def <span class="ident">add_tseitin_multi_or</span></span>(<span>self, inputs, output=-1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds clauses such that BIG_OR(inputs) &lt;==&gt; output. If the variable
+<code>output</code> is not given, creates a new variable.</p>
+<h2 id="returns">Returns</h2>
+<p>The variable <code>output</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_tseitin_multi_or(self, inputs, output=-1):
+    &#34;&#34;&#34;
+    Adds clauses such that BIG_OR(inputs) &lt;==&gt; output. If the variable
+    `output` is not given, creates a new variable.
+
+    Returns:
+        The variable `output`.
+    &#34;&#34;&#34;
+    if len(inputs) &lt; 1:
+        raise ValueError(&#34;at least one input expected&#34;)
+    elif len(inputs) == 1:
+        if (output == -1):
+            return inputs[0]
+        else:
+            raise ValueError(&#34;please don&#39;t add unnecessary identities&#34;)
+    elif (len(inputs) == 2):
+        return self.add_tseitin_or(inputs[0], inputs[1], output)
+    else:
+        # if more than 2 inputs: do OR of left and right
+        l_inputs = inputs[:int(len(inputs)/2)]
+        r_inputs = inputs[int(len(inputs)/2):]
+        l_output = self.add_tseitin_multi_or(l_inputs)
+        r_output = self.add_tseitin_multi_or(r_inputs)
+        return self.add_tseitin_or(l_output, r_output, output)</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.add_tseitin_not"><code class="name flex">
+<span>def <span class="ident">add_tseitin_not</span></span>(<span>self, a, b=-1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds clauses such that b &lt;==&gt; ~a. If the variable <code>b</code> is not given,
+creates a new variable.</p>
+<h2 id="returns">Returns</h2>
+<p>The variable <code>c</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_tseitin_not(self, a, b=-1):
+    &#34;&#34;&#34;
+    Adds clauses such that b &lt;==&gt; ~a. If the variable `b` is not given,
+    creates a new variable.
+
+    Returns:
+        The variable `c`.
+    &#34;&#34;&#34;
+    if b == -1:
+        b = self.get_new_var()
+    self.add_clause([a, b])
+    self.add_clause([-a, -b])
+    return b</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.add_tseitin_or"><code class="name flex">
+<span>def <span class="ident">add_tseitin_or</span></span>(<span>self, a, b, c=-1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds clauses such that c &lt;==&gt; a v b. If the variable <code>c</code> is not given,
+creates a new variable.</p>
+<h2 id="returns">Returns</h2>
+<p>The variable <code>c</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_tseitin_or(self, a, b, c=-1):
+    &#34;&#34;&#34;
+    Adds clauses such that c &lt;==&gt; a v b. If the variable `c` is not given,
+    creates a new variable.
+
+    Returns:
+        The variable `c`.
+    &#34;&#34;&#34;
+    if c == -1:
+        c = self.get_new_var()
+    self.add_clause([a, b, -c])
+    self.add_clause([-a, c])
+    self.add_clause([-b, c])
+    return c</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.add_var"><code class="name flex">
+<span>def <span class="ident">add_var</span></span>(<span>self, var)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds the given variable to the the list of variables. Note that if there
+are currently e.g. 5 variables, the only valid input to this function is
+6.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>var</code></strong></dt>
+<dd>The variable number to be added.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_var(self, var):
+    &#34;&#34;&#34;
+    Adds the given variable to the the list of variables. Note that if there
+    are currently e.g. 5 variables, the only valid input to this function is
+    6.
+
+    Args:
+        var: The variable number to be added.
+    &#34;&#34;&#34;
+    if abs(var) &gt; self.num_vars + 1:
+        print(f&#39;Variable {var} cannot be added:&#39;)
+        print(f&#39;Current number of variables is {self.num_vars}, &#39;, end=&#39;&#39;)
+        print(f&#39;new variable must be {self.num_vars + 1}&#39;)
+        raise ValueError(&#34;Invalid variable number for new variable&#34;)
+    if abs(var) == self.num_vars + 1:
+        self.num_vars += 1</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.assignment_to_set"><code class="name flex">
+<span>def <span class="ident">assignment_to_set</span></span>(<span>self, assignment)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Takes an assignments and returns a set containing the names of variables
+set to True in the given assignment. E.g., if</p>
+<pre><code>self.var_names = {1 : 'x', : 2 : 'y', 3 : 'z'}
+</code></pre>
+<p>then the assignment [1, -2, 3] yields the set {'x', 'z'}.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def assignment_to_set(self, assignment):
+    &#34;&#34;&#34;
+    Takes an assignments and returns a set containing the names of variables
+    set to True in the given assignment. E.g., if
+
+        self.var_names = {1 : &#39;x&#39;, : 2 : &#39;y&#39;, 3 : &#39;z&#39;}
+
+    then the assignment [1, -2, 3] yields the set {&#39;x&#39;, &#39;z&#39;}.
+    &#34;&#34;&#34;
+    res = set()
+    for lit in assignment:
+        if lit &gt; 0:
+            res.add(self.var_names[lit])
+    return res</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.assignments_to_sets"><code class="name flex">
+<span>def <span class="ident">assignments_to_sets</span></span>(<span>self, assignments)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Runs assignment_to_set() on every assignment in assignments.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def assignments_to_sets(self, assignments):
+    &#34;&#34;&#34;
+    Runs assignment_to_set() on every assignment in assignments.
+    &#34;&#34;&#34;
+    res = []
+    for assignment in assignments:
+        res.append(self.assignment_to_set(assignment))
+    return res</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.block"><code class="name flex">
+<span>def <span class="ident">block</span></span>(<span>self, a)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Block the given (partial) assignment.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>a</code></strong></dt>
+<dd>a (partial) assignment given as an iterable of literals.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def block(self, a):
+    &#34;&#34;&#34;
+    Block the given (partial) assignment.
+
+    Args:
+        a: a (partial) assignment given as an iterable of literals.
+    &#34;&#34;&#34;
+    block = [-lit for lit in a]
+    self.add_clause(block)</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.block_positive_only"><code class="name flex">
+<span>def <span class="ident">block_positive_only</span></span>(<span>self, a)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>For an assignment a, blocks the partial assignment which is the
+positive literals in a.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>a</code></strong></dt>
+<dd>a (partial) assignment given as an iterable of literals.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def block_positive_only(self, a):
+    &#34;&#34;&#34;
+    For an assignment a, blocks the partial assignment which is the
+    positive literals in a.
+
+    Args:
+        a: a (partial) assignment given as an iterable of literals.
+    &#34;&#34;&#34;
+    block = []
+    for lit in a:
+        if lit &gt; 0:
+            block.append(-lit)
+    if len(block) &gt; 0:
+        self.add_clause(block)</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.copy"><code class="name flex">
+<span>def <span class="ident">copy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a copy of self.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy(self):
+    &#34;&#34;&#34;
+    Return a copy of self.
+    &#34;&#34;&#34;
+    f = CNF()
+    f.num_vars = self.num_vars
+    f.clauses = self.clauses.copy()
+    f.var_names = self.var_names.copy()
+    return f</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.get_new_var"><code class="name flex">
+<span>def <span class="ident">get_new_var</span></span>(<span>self, name='')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets a new variable (integer) and sets its name to the given string.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>Some string to identify the variable</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The new variable.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_new_var(self, name=&#39;&#39;):
+    &#34;&#34;&#34;
+    Gets a new variable (integer) and sets its name to the given string.
+
+    Args:
+        name: Some string to identify the variable
+
+    Returns:
+        The new variable.
+    &#34;&#34;&#34;
+    self.num_vars += 1
+    self.var_names[self.num_vars] = name
+    return self.num_vars</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.get_new_vars"><code class="name flex">
+<span>def <span class="ident">get_new_vars</span></span>(<span>self, n)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get <code>n</code> new variables.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>n</code></strong></dt>
+<dd>The number of new variables</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The new variables as a list.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_new_vars(self, n):
+    &#34;&#34;&#34;
+    Get `n` new variables.
+
+    Args:
+        n: The number of new variables
+
+    Returns:
+        The new variables as a list.
+    &#34;&#34;&#34;
+    new_vars = list(range(self.num_vars + 1, self.num_vars + n + 1))
+    self.num_vars += (n + 1)
+    return new_vars</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.get_vars"><code class="name flex">
+<span>def <span class="ident">get_vars</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get all the variables as a list.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_vars(self):
+    &#34;&#34;&#34;
+    Get all the variables as a list.
+    &#34;&#34;&#34;
+    return list(range(1, self.num_vars + 1))</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.is_satisfying"><code class="name flex">
+<span>def <span class="ident">is_satisfying</span></span>(<span>self, assignment)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if a given assignment is satisfying.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_satisfying(self, assignment):
+    &#34;&#34;&#34;
+    Checks if a given assignment is satisfying.
+    &#34;&#34;&#34;
+
+    # Every clause must contain at least one literal in the assignment
+    for clause in self.clauses:
+        sat = False
+        for lit in clause:
+            if lit in assignment:
+                sat = True
+                break
+        if sat is False:
+            return False
+    return True</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.solve"><code class="name flex">
+<span>def <span class="ident">solve</span></span>(<span>self, method='classical', minimize_vars=None, verbose=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Gets 1 satisfying assignments if it exists.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>method</code></strong></dt>
+<dd>a string in ['grover', 'classical', 'min-sat']</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def solve(self, method=&#39;classical&#39;, minimize_vars=None, verbose=True):
+    &#34;&#34;&#34;
+    Gets 1 satisfying assignments if it exists.
+
+    Args:
+        method: a string in [&#39;grover&#39;, &#39;classical&#39;, &#39;min-sat&#39;]
+    &#34;&#34;&#34;
+    if method == &#39;grover&#39;:
+        return self._solve_grover_qiskit(verbose=verbose)
+    elif method == &#39;classical&#39;:
+        return self._solve_glucose_3()
+    elif method == &#39;min-sat&#39;:
+        return self._solve_min_sat(minimize_vars=minimize_vars)
+    else:
+        raise ValueError(f&#34;Unknown method &#39;{method}&#39;&#34;)</code></pre>
+</details>
+</dd>
+<dt id="ft_2_quantum_sat.cnf.CNF.str_format_formula"><code class="name flex">
+<span>def <span class="ident">str_format_formula</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Formats the CNF formula as a string.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def str_format_formula(self):
+    &#34;&#34;&#34;
+    Formats the CNF formula as a string.
+    &#34;&#34;&#34;
+    var_order = {} # keep track of appearance order of vars in the string
+    i = 0
+    cnf_str = &#39;&#39;
+    for clause in self.clauses:
+        cnf_str += &#39;(&#39;
+        for lit in clause:
+            cnf_str += self._str_format_lit(lit) + &#39; | &#39;
+            if abs(lit) not in var_order:
+                var_order[abs(lit)] = i
+                i += 1
+        cnf_str = cnf_str[:-3] # remove last &#39; | &#39;
+        cnf_str += &#39;) &amp; &#39;
+    cnf_str = cnf_str[:-3] # remove last &#39; &amp; &#39;
+    return cnf_str, var_order</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="ft_2_quantum_sat" href="index.html">ft_2_quantum_sat</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="ft_2_quantum_sat.cnf.CNF" href="#ft_2_quantum_sat.cnf.CNF">CNF</a></code></h4>
+<ul class="">
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.add_cardinality_constraint" href="#ft_2_quantum_sat.cnf.CNF.add_cardinality_constraint">add_cardinality_constraint</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.add_clause" href="#ft_2_quantum_sat.cnf.CNF.add_clause">add_clause</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.add_tseitin_and" href="#ft_2_quantum_sat.cnf.CNF.add_tseitin_and">add_tseitin_and</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.add_tseitin_multi" href="#ft_2_quantum_sat.cnf.CNF.add_tseitin_multi">add_tseitin_multi</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.add_tseitin_multi_and" href="#ft_2_quantum_sat.cnf.CNF.add_tseitin_multi_and">add_tseitin_multi_and</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.add_tseitin_multi_or" href="#ft_2_quantum_sat.cnf.CNF.add_tseitin_multi_or">add_tseitin_multi_or</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.add_tseitin_not" href="#ft_2_quantum_sat.cnf.CNF.add_tseitin_not">add_tseitin_not</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.add_tseitin_or" href="#ft_2_quantum_sat.cnf.CNF.add_tseitin_or">add_tseitin_or</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.add_var" href="#ft_2_quantum_sat.cnf.CNF.add_var">add_var</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.assignment_to_set" href="#ft_2_quantum_sat.cnf.CNF.assignment_to_set">assignment_to_set</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.assignments_to_sets" href="#ft_2_quantum_sat.cnf.CNF.assignments_to_sets">assignments_to_sets</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.block" href="#ft_2_quantum_sat.cnf.CNF.block">block</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.block_positive_only" href="#ft_2_quantum_sat.cnf.CNF.block_positive_only">block_positive_only</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.copy" href="#ft_2_quantum_sat.cnf.CNF.copy">copy</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.get_new_var" href="#ft_2_quantum_sat.cnf.CNF.get_new_var">get_new_var</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.get_new_vars" href="#ft_2_quantum_sat.cnf.CNF.get_new_vars">get_new_vars</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.get_vars" href="#ft_2_quantum_sat.cnf.CNF.get_vars">get_vars</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.is_satisfying" href="#ft_2_quantum_sat.cnf.CNF.is_satisfying">is_satisfying</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.solve" href="#ft_2_quantum_sat.cnf.CNF.solve">solve</a></code></li>
+<li><code><a title="ft_2_quantum_sat.cnf.CNF.str_format_formula" href="#ft_2_quantum_sat.cnf.CNF.str_format_formula">str_format_formula</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
