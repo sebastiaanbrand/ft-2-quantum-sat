@@ -26,6 +26,8 @@ $ sudo apt-get install graphviz
 
 ## Example usage
 
+The complete documentation can be found [here](https://neasqc.github.io/ft-2-quantum-sat/). Below an example showing the main usage is given.
+
 The `example.py` file loads a number of fault trees from XML files in the Open-PSA Model Exchange Format and computes minimal cut sets. An example script is given below.
 
 ```python
