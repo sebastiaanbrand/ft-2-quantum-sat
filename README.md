@@ -65,3 +65,6 @@ ft.add_gate('wheel issue', 'and', ['wheel breaks', 'no spare'])
 cutsets = ft.compute_min_cutsets(m=2, method='grover') 
 print("cut sets:", cutsets)
 ```
+
+## Acknowledgements
+This work is supported by the [NEASQC](https://cordis.europa.eu/project/id/951821) project, funded by the European Union's Horizon 2020 programme, Grant Agreement No. 951821.
