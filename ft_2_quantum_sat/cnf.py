@@ -13,6 +13,10 @@ from qiskit.utils import QuantumInstance
 from qiskit.algorithms import Grover, AmplificationProblem
 from qiskit.circuit.library.phase_oracle import PhaseOracle
 
+from qat.lang.AQASM import Program, H
+from qat.lang.AQASM.qbool import QBoolArray
+from qat.qpus import get_default_qpu
+
 
 class CNF:
     """
@@ -175,7 +179,7 @@ class CNF:
         if len(inputs) < 1:
             raise ValueError("at least one input expected")
         elif len(inputs) == 1:
-            if (output == -1):
+            if output == -1:
                 return inputs[0]
             else:
                 raise ValueError("please don't add unnecessary identities")
@@ -201,11 +205,11 @@ class CNF:
         if len(inputs) < 1:
             raise ValueError("at least one input expected")
         elif len(inputs) == 1:
-            if (output == -1):
+            if output == -1:
                 return inputs[0]
             else:
                 raise ValueError("please don't add unnecessary identities")
-        elif (len(inputs) == 2):
+        elif len(inputs) == 2:
             return self.add_tseitin_or(inputs[0], inputs[1], output)
         else:
             # if more than 2 inputs: do OR of left and right
@@ -275,9 +279,9 @@ class CNF:
         """
         Formats a literal as a string.
         """
-        if (lit > 0):
+        if lit > 0:
             return f'x{lit}'
-        elif (lit < 0):
+        elif lit < 0:
             return f'~x{abs(lit)}'
         else:
             raise ValueError(f"Literal {lit} is invalid")
@@ -356,12 +360,68 @@ class CNF:
         """
         if method == 'grover':
             return self._solve_grover_qiskit(verbose=verbose)
+        elif method == 'grover-qiskit':
+            return self._solve_grover_qiskit(verbose=verbose)
+        elif method == 'grover-myqlm':
+            return self._solve_grover_myqlm()
         elif method == 'classical':
             return self._solve_glucose_3()
         elif method == 'min-sat':
             return self._solve_min_sat(minimize_vars=minimize_vars)
         else:
             raise ValueError(f"Unknown method '{method}'")
+
+
+    def _to_qbool_expression(self, qbools):
+        """
+        Returns a MyQLM QBool expression (QClause) of this CNF formula.
+        """
+        if len(qbools) < self.num_vars:
+            _q = len(qbools)
+            _v = self.num_vars
+            raise ValueError(f"Too few QBools ('{_q}') for CNF vars '{_v}'")
+
+        clause_iterator = iter(self.clauses)
+
+        # set expr to first clause
+        expr = self._clause_to_qbool_clause(qbools, next(clause_iterator))
+
+        # add AND of other clauses
+        for clause in clause_iterator:
+            expr = expr & self._clause_to_qbool_clause(qbools, clause)
+
+        return expr
+
+
+    def _clause_to_qbool_clause(self, qbools, clause):
+        """
+        For a CNF clause, return the corresponding QClause expression.
+        """
+        lit_iterator = iter(clause)
+
+        # set qclause to first literal
+        qclause = self._lit_to_qbool(qbools, next(lit_iterator))
+
+        # add OR of other literals
+        for lit in lit_iterator:
+            qclause = qclause | self._lit_to_qbool(qbools, lit)
+
+        return qclause
+
+
+    def _lit_to_qbool(self, qbools, lit):
+        """
+        For a CNF literal, returns the corresponding QBool literal.
+
+        The CNF literals are numbered from 1 to n, while qbools start at 0, so
+        the index is shifted by -1.
+
+        E.g. 3 --> q[2], -5 --> ~q[4]
+        """
+        if lit > 0:
+            return qbools[lit-1]
+        else:
+            return ~qbools[abs(lit)-1]
 
 
     def _to_weighted_formula(self, weight_map):
@@ -439,6 +499,33 @@ class CNF:
         sat = g.solve()
         model = g.get_model()
         return sat, model
+
+    def _solve_grover_myqlm(self):
+        """
+        WIP
+        """
+        prog = Program()
+        qbools = prog.qalloc(self.num_vars, QBoolArray)
+        expr = self._to_qbool_expression(qbools)
+        print(expr)
+        exit()
+
+        # Some small test to see if everything imports correctly
+        prog = Program()
+        qbools = prog.qalloc(2, QBoolArray)
+        for q in qbools:
+            H(q)
+        expr = qbools[0]# & qbools[1]
+        expr = expr & qbools[1]
+        expr.phase()
+        print(type(expr))
+        print(expr)
+        print(qbools[0])
+
+        job = prog.to_circ().to_job()
+        result = get_default_qpu().submit(job)
+        for sample in result:
+            print(sample.state, sample.amplitude)
 
 
     def _solve_grover_qiskit(self, shots=100, verbose=True):
