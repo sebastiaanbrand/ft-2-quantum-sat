@@ -2,6 +2,7 @@
 Definition of CNF class to hold some custom CNF functionality (the CNF class in
 pysat.formula doesn't quite do everyting we need).
 """
+import math
 
 from pysat.solvers import Glucose3
 from pysat.card import CardEnc
@@ -13,9 +14,10 @@ from qiskit.utils import QuantumInstance
 from qiskit.algorithms import Grover, AmplificationProblem
 from qiskit.circuit.library.phase_oracle import PhaseOracle
 
-from qat.lang.AQASM import Program, H
-from qat.lang.AQASM.qbool import QBoolArray
+from qat.lang.AQASM import Program
 from qat.qpus import get_default_qpu
+
+import ft_2_quantum_sat.myqlm_functions as myqlm
 
 
 class CNF:
@@ -372,58 +374,6 @@ class CNF:
             raise ValueError(f"Unknown method '{method}'")
 
 
-    def _to_qbool_expression(self, qbools):
-        """
-        Returns a MyQLM QBool expression (QClause) of this CNF formula.
-        """
-        if len(qbools) < self.num_vars:
-            _q = len(qbools)
-            _v = self.num_vars
-            raise ValueError(f"Too few QBools ('{_q}') for CNF vars '{_v}'")
-
-        clause_iterator = iter(self.clauses)
-
-        # set expr to first clause
-        expr = self._clause_to_qbool_clause(qbools, next(clause_iterator))
-
-        # add AND of other clauses
-        for clause in clause_iterator:
-            expr = expr & self._clause_to_qbool_clause(qbools, clause)
-
-        return expr
-
-
-    def _clause_to_qbool_clause(self, qbools, clause):
-        """
-        For a CNF clause, return the corresponding QClause expression.
-        """
-        lit_iterator = iter(clause)
-
-        # set qclause to first literal
-        qclause = self._lit_to_qbool(qbools, next(lit_iterator))
-
-        # add OR of other literals
-        for lit in lit_iterator:
-            qclause = qclause | self._lit_to_qbool(qbools, lit)
-
-        return qclause
-
-
-    def _lit_to_qbool(self, qbools, lit):
-        """
-        For a CNF literal, returns the corresponding QBool literal.
-
-        The CNF literals are numbered from 1 to n, while qbools start at 0, so
-        the index is shifted by -1.
-
-        E.g. 3 --> q[2], -5 --> ~q[4]
-        """
-        if lit > 0:
-            return qbools[lit-1]
-        else:
-            return ~qbools[abs(lit)-1]
-
-
     def _to_weighted_formula(self, weight_map):
         """
         Returns a weighted CNF formula, with the hard clauses being the original
@@ -500,32 +450,62 @@ class CNF:
         model = g.get_model()
         return sat, model
 
-    def _solve_grover_myqlm(self):
-        """
-        WIP
-        """
-        prog = Program()
-        qbools = prog.qalloc(self.num_vars, QBoolArray)
-        expr = self._to_qbool_expression(qbools)
-        print(expr)
-        exit()
 
-        # Some small test to see if everything imports correctly
-        prog = Program()
-        qbools = prog.qalloc(2, QBoolArray)
-        for q in qbools:
-            H(q)
-        expr = qbools[0]# & qbools[1]
-        expr = expr & qbools[1]
-        expr.phase()
-        print(type(expr))
-        print(expr)
-        print(qbools[0])
+    def _count_glucose_3(self):
+        """
+        Count the number of satisfying assignments using a classical SAT solver.
+        """
 
-        job = prog.to_circ().to_job()
+        # create initial formula
+        g = Glucose3()
+        for clause in self.clauses:
+            g.add_clause(list(clause))
+
+        count = 0
+        for _ in g.enum_models():
+            count += 1
+        return count
+
+
+    def _solve_grover_myqlm(self, shots=100):
+        """
+        Gets 1 satisfying assignment if it exists, using a Grover implementation
+        with MyQLM as backend.
+        """
+
+        # 1. Count number of solutions
+        # NOTE: using a classical solver for testing,
+        # replace with quantum counting (QPE) later
+        m = self._count_glucose_3()
+
+        # 2. Number of Grover iterations
+        n = self.num_vars
+        r = math.floor(math.pi/4.0 * math.sqrt(2**n / m))
+
+        # 3. Define Grover
+        grover = Program()
+        qubits = grover.qalloc(n)
+
+        # 3a. Oracle and diffusion operator
+        diffop = myqlm.diffusion(n)
+        oracle = myqlm.oracle_from_cnf(n, self.clauses)
+
+        # 3b. Repeat r times
+        for _ in range(r):
+            oracle(qubits)
+            diffop(qubits)
+
+        # 5. Create and run job
+        job = grover.to_circ().to_job(nbshots=shots)
         result = get_default_qpu().submit(job)
-        for sample in result:
-            print(sample.state, sample.amplitude)
+
+        # get the top-1 most frequent result
+        var_order = myqlm.grover_var_map(4)
+        assignments = self._process_grover_result('myqlm', result, var_order, 1)
+        if len(assignments) == 0:
+            return False, None
+        else:
+            return True, assignments[0]
 
 
     def _solve_grover_qiskit(self, shots=100, verbose=True):
@@ -550,20 +530,29 @@ class CNF:
         result = grover.amplify(problem)
 
         # get the top-1 most frequent result
-        assignments = self._process_grover_result(result, var_order, n=1)
+        assignments = self._process_grover_result('qiskit', result, var_order, 1)
         if len(assignments) == 0:
             return False, None
         else:
             return True, assignments[0]
 
 
-    def _process_grover_result(self, result, var_order, n):
+    def _process_grover_result(self, backend, result, var_order, n):
         """
         Helper to get relevant information from the measurement results.
         """
 
+        # parse results depending on backend
+        if backend == 'qiskit':
+            m = result.circuit_results[0]
+        elif backend == 'myqlm':
+            m = {}
+            for sample in result:
+                m[sample.state.bitstring] = sample.probability
+        else:
+            raise ValueError(f"Unknown backend '{backend}'")
+
         # sort measurements by frequency
-        m = result.circuit_results[0]
         sorted_m = sorted(m.items(), key=lambda x: x[1], reverse=True)
 
         # enumerate sorted measurements
