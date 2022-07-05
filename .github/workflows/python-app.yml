@@ -5,7 +5,9 @@ name: Python application
 
 on:
   push:
-    branches: [ main myqlm ]
+    branches:
+      - main
+      - myqlm
     paths-ignore:
       - 'docs/**'
       - '.github/**'
@@ -15,6 +17,7 @@ on:
     paths-ignore:
       - 'doc/**'
       - '.github/**'
+      - 'README.md'
 
 jobs:
   build:
