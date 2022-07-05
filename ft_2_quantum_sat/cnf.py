@@ -550,7 +550,7 @@ class CNF:
         # parse results depending on backend
         if backend == 'qiskit':
             #m = result.circuit_results[0]
-            raise ValueError(f"Deprecating qiskit backend")
+            raise ValueError("Deprecating qiskit backend")
         elif backend == 'myqlm':
             m = {}
             for sample in result:
