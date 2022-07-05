@@ -64,8 +64,6 @@ def oracle_from_cnf(n, clauses):
     routine = QRoutine()
     qbools = routine.new_wires(n, QBoolArray)
 
-    for wire in qbools:
-        H(wire)
     expr = _cnf_to_qbool_expression(n, clauses, qbools)
     expr.phase()
 
@@ -96,8 +94,8 @@ def diffusion(n):
         X(wire)
     Z.ctrl(n - 1)(wires) # should this be n-1 or n?
     for wire in wires:
-        H(wire)
         X(wire)
+        H(wire)
 
     return routine
 

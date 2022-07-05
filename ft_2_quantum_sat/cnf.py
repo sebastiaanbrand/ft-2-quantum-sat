@@ -14,7 +14,7 @@ from qiskit.utils import QuantumInstance
 from qiskit.algorithms import Grover, AmplificationProblem
 from qiskit.circuit.library.phase_oracle import PhaseOracle
 
-from qat.lang.AQASM import Program
+from qat.lang.AQASM import Program, H
 from qat.qpus import get_default_qpu
 
 import ft_2_quantum_sat.myqlm_functions as myqlm
@@ -486,17 +486,22 @@ class CNF:
         grover = Program()
         qubits = grover.qalloc(n)
 
-        # 3a. Oracle and diffusion operator
+        # 3a. Apply H to non-ancilla qubits
+        for wire in qubits:
+            H(wire)
+
+        # 3b. Define oracle and diffusion operator
         diffop = myqlm.diffusion(n)
         oracle = myqlm.oracle_from_cnf(n, self.clauses)
 
-        # 3b. Repeat r times
+        # 3c. Repeat r times
         for _ in range(r):
             oracle(qubits)
             diffop(qubits)
 
         # 5. Create and run job
-        job = grover.to_circ().to_job(nbshots=shots)
+        circuit = grover.to_circ()
+        job = circuit.to_job(nbshots=shots)
         result = get_default_qpu().submit(job)
 
         # get the top-1 most frequent result
@@ -544,7 +549,8 @@ class CNF:
 
         # parse results depending on backend
         if backend == 'qiskit':
-            m = result.circuit_results[0]
+            #m = result.circuit_results[0]
+            raise ValueError(f"Deprecating qiskit backend")
         elif backend == 'myqlm':
             m = {}
             for sample in result:
@@ -555,6 +561,8 @@ class CNF:
         # sort measurements by frequency
         sorted_m = sorted(m.items(), key=lambda x: x[1], reverse=True)
 
+        print(sorted_m)
+
         # enumerate sorted measurements
         res = []
         done = False
@@ -562,7 +570,8 @@ class CNF:
         while (not done and found < n):
             # format assignment from bitstring to lits (e.g. 110 -> [1,2,-3])
             measurement, _ = sorted_m[found]
-            measurement = measurement[::-1] # reverse so that q0 is index 0
+            # reverse for qiskit result
+            #measurement = measurement[::-1] # reverse so that q0 is index 0
 
             # NOTE: the qubit numbers from PhaseOracle(expression) correspond
             # to the order in which the variables apprear in `expression`.

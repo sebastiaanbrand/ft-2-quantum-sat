@@ -104,6 +104,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.venv-wsl2
 env/
 venv/
 ENV/
