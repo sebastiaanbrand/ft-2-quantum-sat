@@ -3,6 +3,7 @@ Definition of CNF class to hold some custom CNF functionality (the CNF class in
 pysat.formula doesn't quite do everyting we need).
 """
 import math
+import random
 
 from pysat.solvers import Glucose3
 from pysat.card import CardEnc
@@ -473,44 +474,47 @@ class CNF:
         with MyQLM as backend.
         """
 
-        # 1. Count number of solutions
-        # NOTE: using a classical solver for testing,
-        # replace with quantum counting (QPE) later
-        m = self._count_glucose_3()
-
-        # 2. Number of Grover iterations
+        # 1. Define oracle and diffusion operator
         n = self.num_vars
-        r = math.floor(math.pi/4.0 * math.sqrt(2**n / m))
-
-        # 3. Define Grover
-        grover = Program()
-        qubits = grover.qalloc(n)
-
-        # 3a. Apply H to non-ancilla qubits
-        for wire in qubits:
-            H(wire)
-
-        # 3b. Define oracle and diffusion operator
         diffop = myqlm.diffusion(n)
         oracle = myqlm.oracle_from_cnf(n, self.clauses)
 
-        # 3c. Repeat r times
-        for _ in range(r):
-            oracle(qubits)
-            diffop(qubits)
+        # 2. Search over number of iterations
+        # (see https://arxiv.org/abs/quant-ph/9605034)
+        m = 1
+        _lambda = 1.2
+        while (m <= math.sqrt(2**n)):
+            r = random.randint(1, round(m))
 
-        # 5. Create and run job
-        circuit = grover.to_circ()
-        job = circuit.to_job(nbshots=shots)
-        result = get_default_qpu().submit(job)
+            # 3. Define Grover
+            grover = Program()
+            qubits = grover.qalloc(n)
 
-        # get the top-1 most frequent result
-        var_order = myqlm.grover_var_map(4)
-        assignments = self._process_grover_result('myqlm', result, var_order, 1)
-        if len(assignments) == 0:
-            return False, None
-        else:
-            return True, assignments[0]
+            # 3a. Apply H to non-ancilla qubits
+            for wire in qubits:
+                H(wire)
+
+            # 3b. Repeat oracle + diffusion operator r times
+            for _ in range(r):
+                oracle(qubits)
+                diffop(qubits)
+
+            # 4. Create and run job
+            circuit = grover.to_circ()
+            job = circuit.to_job(nbshots=shots)
+            result = get_default_qpu().submit(job)
+
+            # get the top-1 most frequent result
+            var_order = myqlm.grover_var_map(4)
+            assignments = self._process_grover_result('myqlm', result, var_order, 1)
+            
+            if len(assignments) == 0:
+                m *= _lambda
+                continue
+            else:
+                return True, assignments[0]
+
+        return False, None
 
 
     def _solve_grover_qiskit(self, shots=100, verbose=True):
@@ -560,8 +564,6 @@ class CNF:
 
         # sort measurements by frequency
         sorted_m = sorted(m.items(), key=lambda x: x[1], reverse=True)
-
-        print(sorted_m)
 
         # enumerate sorted measurements
         res = []
