@@ -10,11 +10,6 @@ from pysat.card import CardEnc
 from pysat.examples.rc2 import RC2
 from pysat.formula import WCNF
 
-from qiskit import Aer
-from qiskit.utils import QuantumInstance
-from qiskit.algorithms import Grover, AmplificationProblem
-from qiskit.circuit.library.phase_oracle import PhaseOracle
-
 from qat.lang.AQASM import Program, H
 from qat.qpus import get_default_qpu
 
@@ -362,10 +357,6 @@ class CNF:
             method: a string in ['grover', 'classical', 'min-sat']
         """
         if method == 'grover':
-            return self._solve_grover_qiskit(verbose=verbose)
-        elif method == 'grover-qiskit':
-            return self._solve_grover_qiskit(verbose=verbose)
-        elif method == 'grover-myqlm':
             return self._solve_grover_myqlm()
         elif method == 'classical':
             return self._solve_glucose_3()
@@ -483,7 +474,7 @@ class CNF:
         # (see https://arxiv.org/abs/quant-ph/9605034)
         m = 1
         _lambda = 1.2
-        while (m <= math.sqrt(2**n)):
+        while m <= math.sqrt(2**n):
             r = random.randint(1, round(m))
 
             # 3. Define Grover
@@ -507,7 +498,7 @@ class CNF:
             # get the top-1 most frequent result
             var_order = myqlm.grover_var_map(4)
             assignments = self._process_grover_result('myqlm', result, var_order, 1)
-            
+
             if len(assignments) == 0:
                 m *= _lambda
                 continue
@@ -517,45 +508,13 @@ class CNF:
         return False, None
 
 
-    def _solve_grover_qiskit(self, shots=100, verbose=True):
-        """
-        Gets 1 satisfying assignment if it exists, using Qiskit's Grover.
-        """
-
-        expression, var_order = self.str_format_formula()
-        oracle = PhaseOracle(expression) # oracle.data contains circuit info
-        problem = AmplificationProblem(oracle,
-                                       is_good_state=oracle.evaluate_bitstring)
-        backend = Aer.get_backend('aer_simulator')
-        quantum_instance = QuantumInstance(backend, shots=shots)
-
-        if verbose:
-            print(f"Grover oracle requires {oracle.num_qubits} qubits")
-
-        # without specifying the number of iterations, the algorithm tries
-        # different number of iteratsion, and after each iteration checks if a
-        # good state has been measured using good_state.
-        grover = Grover(quantum_instance=quantum_instance)
-        result = grover.amplify(problem)
-
-        # get the top-1 most frequent result
-        assignments = self._process_grover_result('qiskit', result, var_order, 1)
-        if len(assignments) == 0:
-            return False, None
-        else:
-            return True, assignments[0]
-
-
     def _process_grover_result(self, backend, result, var_order, n):
         """
         Helper to get relevant information from the measurement results.
         """
 
         # parse results depending on backend
-        if backend == 'qiskit':
-            #m = result.circuit_results[0]
-            raise ValueError("Deprecating qiskit backend")
-        elif backend == 'myqlm':
+        if backend == 'myqlm':
             m = {}
             for sample in result:
                 m[sample.state.bitstring] = sample.probability

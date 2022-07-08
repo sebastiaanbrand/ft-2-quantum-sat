@@ -20,11 +20,7 @@ def test_grover_myqlm():
     f.add_clause([ 1, 2, 3])
     f.add_clause([-1,-2, 3])
 
-    # assert classical results first
-    count = f._count_glucose_3()
-    assert count
-
     # test grover with myqlm backend
-    sat, assignment = f.solve(method='grover-myqlm')
+    sat, assignment = f.solve(method='grover')
     assert sat is True
     assert assignment == [1, -2, 3]
