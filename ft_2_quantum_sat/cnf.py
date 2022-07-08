@@ -2,16 +2,18 @@
 Definition of CNF class to hold some custom CNF functionality (the CNF class in
 pysat.formula doesn't quite do everyting we need).
 """
+import math
+import random
 
 from pysat.solvers import Glucose3
 from pysat.card import CardEnc
 from pysat.examples.rc2 import RC2
 from pysat.formula import WCNF
 
-from qiskit import Aer
-from qiskit.utils import QuantumInstance
-from qiskit.algorithms import Grover, AmplificationProblem
-from qiskit.circuit.library.phase_oracle import PhaseOracle
+from qat.lang.AQASM import Program, H
+from qat.qpus import get_default_qpu
+
+import ft_2_quantum_sat.myqlm_functions as myqlm
 
 
 class CNF:
@@ -175,7 +177,7 @@ class CNF:
         if len(inputs) < 1:
             raise ValueError("at least one input expected")
         elif len(inputs) == 1:
-            if (output == -1):
+            if output == -1:
                 return inputs[0]
             else:
                 raise ValueError("please don't add unnecessary identities")
@@ -201,11 +203,11 @@ class CNF:
         if len(inputs) < 1:
             raise ValueError("at least one input expected")
         elif len(inputs) == 1:
-            if (output == -1):
+            if output == -1:
                 return inputs[0]
             else:
                 raise ValueError("please don't add unnecessary identities")
-        elif (len(inputs) == 2):
+        elif len(inputs) == 2:
             return self.add_tseitin_or(inputs[0], inputs[1], output)
         else:
             # if more than 2 inputs: do OR of left and right
@@ -275,9 +277,9 @@ class CNF:
         """
         Formats a literal as a string.
         """
-        if (lit > 0):
+        if lit > 0:
             return f'x{lit}'
-        elif (lit < 0):
+        elif lit < 0:
             return f'~x{abs(lit)}'
         else:
             raise ValueError(f"Literal {lit} is invalid")
@@ -355,7 +357,7 @@ class CNF:
             method: a string in ['grover', 'classical', 'min-sat']
         """
         if method == 'grover':
-            return self._solve_grover_qiskit(verbose=verbose)
+            return self._solve_grover_myqlm()
         elif method == 'classical':
             return self._solve_glucose_3()
         elif method == 'min-sat':
@@ -441,42 +443,85 @@ class CNF:
         return sat, model
 
 
-    def _solve_grover_qiskit(self, shots=100, verbose=True):
+    def _count_glucose_3(self):
         """
-        Gets 1 satisfying assignment if it exists, using Qiskit's Grover.
+        Count the number of satisfying assignments using a classical SAT solver.
         """
 
-        expression, var_order = self.str_format_formula()
-        oracle = PhaseOracle(expression) # oracle.data contains circuit info
-        problem = AmplificationProblem(oracle,
-                                       is_good_state=oracle.evaluate_bitstring)
-        backend = Aer.get_backend('aer_simulator')
-        quantum_instance = QuantumInstance(backend, shots=shots)
+        # create initial formula
+        g = Glucose3()
+        for clause in self.clauses:
+            g.add_clause(list(clause))
 
-        if verbose:
-            print(f"Grover oracle requires {oracle.num_qubits} qubits")
-
-        # without specifying the number of iterations, the algorithm tries
-        # different number of iteratsion, and after each iteration checks if a
-        # good state has been measured using good_state.
-        grover = Grover(quantum_instance=quantum_instance)
-        result = grover.amplify(problem)
-
-        # get the top-1 most frequent result
-        assignments = self._process_grover_result(result, var_order, n=1)
-        if len(assignments) == 0:
-            return False, None
-        else:
-            return True, assignments[0]
+        count = 0
+        for _ in g.enum_models():
+            count += 1
+        return count
 
 
-    def _process_grover_result(self, result, var_order, n):
+    def _solve_grover_myqlm(self, shots=100):
+        """
+        Gets 1 satisfying assignment if it exists, using a Grover implementation
+        with MyQLM as backend.
+        """
+
+        # 1. Define oracle and diffusion operator
+        n = self.num_vars
+        diffop = myqlm.diffusion(n)
+        oracle = myqlm.oracle_from_cnf(n, self.clauses)
+
+        # 2. Search over number of iterations
+        # (see https://arxiv.org/abs/quant-ph/9605034)
+        m = 1
+        _lambda = 1.2
+        while m <= math.sqrt(2**n):
+            r = random.randint(1, round(m))
+
+            # 3. Define Grover
+            grover = Program()
+            qubits = grover.qalloc(n)
+
+            # 3a. Apply H to non-ancilla qubits
+            for wire in qubits:
+                H(wire)
+
+            # 3b. Repeat oracle + diffusion operator r times
+            for _ in range(r):
+                oracle(qubits)
+                diffop(qubits)
+
+            # 4. Create and run job
+            circuit = grover.to_circ()
+            job = circuit.to_job(nbshots=shots)
+            result = get_default_qpu().submit(job)
+
+            # get the top-1 most frequent result
+            var_order = myqlm.grover_var_map(4)
+            assignments = self._process_grover_result('myqlm', result, var_order, 1)
+
+            if len(assignments) == 0:
+                m *= _lambda
+                continue
+            else:
+                return True, assignments[0]
+
+        return False, None
+
+
+    def _process_grover_result(self, backend, result, var_order, n):
         """
         Helper to get relevant information from the measurement results.
         """
 
+        # parse results depending on backend
+        if backend == 'myqlm':
+            m = {}
+            for sample in result:
+                m[sample.state.bitstring] = sample.probability
+        else:
+            raise ValueError(f"Unknown backend '{backend}'")
+
         # sort measurements by frequency
-        m = result.circuit_results[0]
         sorted_m = sorted(m.items(), key=lambda x: x[1], reverse=True)
 
         # enumerate sorted measurements
@@ -486,7 +531,8 @@ class CNF:
         while (not done and found < n):
             # format assignment from bitstring to lits (e.g. 110 -> [1,2,-3])
             measurement, _ = sorted_m[found]
-            measurement = measurement[::-1] # reverse so that q0 is index 0
+            # reverse for qiskit result
+            #measurement = measurement[::-1] # reverse so that q0 is index 0
 
             # NOTE: the qubit numbers from PhaseOracle(expression) correspond
             # to the order in which the variables apprear in `expression`.
